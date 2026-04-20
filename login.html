@@ -1,0 +1,38 @@
+<h2>Acceso al sistema</h2>
+
+<input type="password" id="password" placeholder="Contraseña">
+<button id="btnLogin">Entrar</button>
+
+<p id="msg"></p>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from
+    "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDwJRmsCiPVO6BhZaWRyf1gDZeJmYYz0KU",
+    authDomain: "digitalizacion-cfadf.firebaseapp.com",
+    projectId: "digitalizacion-cfadf",
+    storageBucket: "digitalizacion-cfadf.firebasestorage.app",
+    messagingSenderId: "439767153856",
+    appId: "1:439767153856:web:26b3245fefd6cf54b90125"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const EMAIL_FIJO = "acceso@digitalizacion.local";
+
+  document.getElementById("btnLogin").onclick = () => {
+    const password = document.getElementById("password").value;
+
+    signInWithEmailAndPassword(auth, EMAIL_FIJO, password)
+      .then(() => {
+        window.location.href = "index.html";
+      })
+      .catch(() => {
+        document.getElementById("msg").innerText = "Contraseña incorrecta";
+      });
+  };
+</script>
