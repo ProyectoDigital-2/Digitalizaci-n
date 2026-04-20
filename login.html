@@ -1,9 +1,83 @@
-<h2>Acceso al sistema</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Acceso al Catálogo Digital</title>
 
-<input type="password" id="password" placeholder="Contraseña">
-<button id="btnLogin">Entrar</button>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0b3c91, #1f5fd1); /* Azul rey */
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-<p id="msg"></p>
+    .login-box {
+      background: #ffffff;
+      padding: 32px;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      text-align: center;
+    }
+
+    .login-box h2 {
+      margin-bottom: 22px;
+      color: #0b3c91;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    .login-box input:focus {
+      outline: none;
+      border-color: #0b3c91;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 12px;
+      background: #0b3c91;
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .login-box button:hover {
+      background: #082e6e;
+    }
+
+    .error {
+      color: #c0392b;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-box">
+  <h2>Acceso al Catálogo Digital</h2>
+
+  <input type="password" id="password" placeholder="Contraseña">
+  <button id="btnLogin">Entrar</button>
+
+  <p id="msg" class="error"></p>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -36,3 +110,6 @@
       });
   };
 </script>
+
+</body>
+</html>
