@@ -219,6 +219,36 @@ header{position:relative;z-index:10;background:linear-gradient(180deg,#000 0%,tr
 .empty-state .icon{font-size:40px;margin-bottom:12px;opacity:.4}
 footer{text-align:center;padding:24px;border-top:1px solid var(--border);font-size:11px;color:var(--gray);letter-spacing:1px;position:relative;z-index:5}
 
+/* ══ BADGE NUEVO — rojo/blanco, esquina superior izquierda ══ */
+.badge-nuevo{
+  position:absolute;
+  top:6px;left:6px;
+  z-index:10;
+  background:linear-gradient(135deg,#E8192C 0%,#b5101f 100%);
+  color:#fff;
+  font-family:'Rajdhani',sans-serif;
+  font-size:8.5px;
+  font-weight:700;
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+  padding:3px 8px 3px 7px;
+  border-radius:4px 12px 12px 4px;
+  box-shadow:0 2px 10px rgba(232,25,44,.6),inset 0 1px 0 rgba(255,255,255,.25);
+  line-height:1.2;
+  pointer-events:none;
+  white-space:nowrap;
+  animation:nuevo-flash 2.8s ease-in-out infinite;
+}
+.badge-nuevo::before{content:'★ ';font-size:7px;opacity:.9;}
+@keyframes nuevo-flash{
+  0%,100%{box-shadow:0 2px 10px rgba(232,25,44,.6)}
+  50%{box-shadow:0 2px 18px rgba(232,25,44,.95),0 0 0 3px rgba(232,25,44,.15)}
+}
+.pcard.is-nuevo{border-color:rgba(232,25,44,.45)}
+.pcard.is-nuevo:hover{border-color:#E8192C;box-shadow:0 6px 24px rgba(232,25,44,.2)}
+.part-card.is-nuevo{border-color:rgba(232,25,44,.45)}
+.part-card.is-nuevo:hover{border-color:#E8192C;box-shadow:0 6px 24px rgba(232,25,44,.2)}
+
 /* ══════════════════════════════════════════
    MODAL DE IMÁGENES
 ══════════════════════════════════════════ */
@@ -2938,7 +2968,6 @@ window.PV_B64_DATA = "H4sIACSqxWkC/5S9WXfbPNYu+Fd4qtf6Tveq45QtibLTd7YsDwmd+BUZRV
 </script>
 
 
-
 </head>
 <body style="display:none">
 <header><div class="hbar"></div>
@@ -3211,6 +3240,28 @@ MR134C
     </button>
 
   </div>
+
+  <!-- Productos Nuevos — fila completa -->
+  <div style="padding:14px 16px 0;max-width:900px;margin:0 auto">
+    <button onclick="ctGoNuevos()" style="width:100%;background:linear-gradient(135deg,#1a0a0d 0%,#0e0e1e 100%);border:1.5px solid rgba(232,25,44,.45);border-radius:16px;padding:0;overflow:hidden;cursor:pointer;color:inherit;font:inherit;text-align:left;transition:all .25s;-webkit-tap-highlight-color:transparent;display:flex;flex-direction:column">
+      <div style="height:4px;background:linear-gradient(90deg,#E8192C,#ff6b6b,#E8192C);background-size:200% 100%;animation:nuevo-bar-slide 2s linear infinite"></div>
+      <div style="padding:18px 22px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div style="font-size:40px;line-height:1;filter:drop-shadow(0 0 12px rgba(232,25,44,.6));flex-shrink:0">🆕</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#fff;margin-bottom:3px">Productos Nuevos 2026</div>
+          <div style="font-size:11px;color:#8890B8;letter-spacing:.5px">Incorporaciones más recientes al catálogo — identificados con etiqueta roja</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <div id="ct-cnt-nuevos" style="font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#E8192C,#b5101f);border-radius:20px;padding:6px 16px;white-space:nowrap;box-shadow:0 2px 12px rgba(232,25,44,.45)">246 productos</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;color:#E8192C;font-weight:700;letter-spacing:1px">VER →</div>
+        </div>
+      </div>
+    </button>
+  </div>
+  <style>
+    @keyframes nuevo-bar-slide{0%{background-position:0% 0}100%{background-position:200% 0}}
+    #sc-clasif-tipo button:hover { border-color:rgba(232,25,44,.6) !important; }
+  </style>
 
   <style>
     #sc-clasif-tipo button[onclick] { transition: transform .18s, box-shadow .18s, border-color .18s; }
@@ -3946,6 +3997,7 @@ MR134C
 <div class="sec-hdr"><div class="sec-t" id="prod-sec">Productos</div><div class="sec-line"></div><div class="sec-cnt" id="prod-count"></div></div>
 <div class="parts-grid" id="prod-grid"></div>
 </div>
+
 
 
 <script>
@@ -20494,6 +20546,7 @@ var P=[
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <button onclick="addVisibleToCart()" id="add-visible-btn" style="display:flex;align-items:center;gap:5px;background:rgba(0,212,255,.1);border:1.5px solid rgba(0,212,255,.35);border-radius:10px;padding:7px 12px;cursor:pointer;color:#00D4FF;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;transition:all .2s;white-space:nowrap">🛒 Visibles</button>
     <button onclick="addAllToCart()" id="add-all-btn" style="display:flex;align-items:center;gap:5px;background:rgba(245,158,11,.1);border:1.5px solid rgba(245,158,11,.35);border-radius:10px;padding:7px 12px;cursor:pointer;color:#F59E0B;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;transition:all .2s;white-space:nowrap">🛒 Todo el filtro</button>
+    <button onclick="filtrarSoloNuevos()" id="btn-solo-nuevos" style="display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,rgba(232,25,44,.18),rgba(180,10,20,.1));border:1.5px solid #E8192C;border-radius:10px;padding:7px 12px;cursor:pointer;color:#fff;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:.8px;transition:all .2s;white-space:nowrap;box-shadow:0 2px 10px rgba(232,25,44,.3)">★ NUEVOS</button>
   </div>
 </div>
 <button class="mobile-filter-btn" id="mobile-filter-btn">⚙ Filtros</button>
@@ -20904,6 +20957,10 @@ function renderProds2(){
     });
   }
   if(q) list=list.filter(function(p){ return matchQuery(p,q); });
+  /* ── Filtro NUEVOS: se aplica sobre la lista ya filtrada por fuente ── */
+  if(window._nuevosMode && window.NUEVOS_SET){
+    list=list.filter(function(p){ return window.NUEVOS_SET.has(p[0]); });
+  }
 
   /* Cápsulas: calcular familias ANTES del filtro de familia */
   if(CAT_SOURCE==='flotillas'){
@@ -20986,7 +21043,11 @@ function makePcard(p){
   var safeName = p[1].substring(0,60).replace(/'/g,'&#39;').replace(/"/g,'&quot;');
   var safeCode = p[0].replace(/'/g,'&#39;');
   var _slug = buildApymsaSlug(p);
-  return '<a class="pcard" href="#" data-slug="'+_slug+'" onclick="openImgModal(event,\''+p[0]+'\',\''+safeName+'\')">'
+  var _esNuevo = window.NUEVOS_SET && window.NUEVOS_SET.has(p[0]);
+  var _nuevoClass = _esNuevo ? ' is-nuevo' : '';
+  var _nuevoBadge = _esNuevo ? '<span class="badge-nuevo">Nuevo</span>' : '';
+  return '<a class="pcard'+_nuevoClass+'" href="#" data-slug="'+_slug+'" onclick="openImgModal(event,\''+p[0]+'\',\''+safeName+'\')">'
+    + _nuevoBadge
     + '<div class="pcard-img-wrap">'
     +   '<div class="pcard-circle"><img src="'+url+'" alt="'+p[0]+'" loading="lazy" referrerpolicy="no-referrer" '
     +   'onerror="this.parentElement.classList.add(\'no-img\');this.style.display=\'none\';this.parentElement.textContent=\'📦\'"></div>'
@@ -22164,7 +22225,9 @@ function renderPvGrid(list) {
     }
     var safeCode = String(p[0]).replace(/'/g,"\\'");
     var _pslug = buildApymsaSlug(p);
-    h += '<a class="part-card" href="#" data-slug="'+_pslug+'" onclick="openImgModal(event,\''+p[0]+'\',' + "'" + p[1].substring(0,60).replace(/'/g,'&#39;') + "'" + ')">'
+    var _esNv = window.NUEVOS_SET && window.NUEVOS_SET.has(p[0]);
+    h += '<a class="part-card'+(_esNv?' is-nuevo':'')+'" href="#" data-slug="'+_pslug+'" onclick="openImgModal(event,\''+p[0]+'\',' + "'" + p[1].substring(0,60).replace(/'/g,'&#39;') + "'" + ')">'
+      + (_esNv ? '<span class="badge-nuevo">Nuevo</span>' : '')
       + '<div class="part-thumb-wrap pcard-img-wrap">'
       + '<img class="part-thumb" src="' + url + '" alt="' + p[0] + '" loading="lazy" referrerpolicy="no-referrer" onerror="imgErr(this)">'
       + ap
@@ -22244,7 +22307,9 @@ function renderPvGridKw(list, q) {
     }
     var safeCode = String(p[0]).replace(/'/g,"\\'");
     var _pslug = buildApymsaSlug(p);
-    h += '<a class="part-card" href="#" data-slug="'+_pslug+'" onclick="openImgModal(event,\''+p[0]+'\',' + "'" + p[1].substring(0,60).replace(/'/g,'&#39;') + "'" + ')">'
+    var _esNv2 = window.NUEVOS_SET && window.NUEVOS_SET.has(p[0]);
+    h += '<a class="part-card'+(_esNv2?' is-nuevo':'')+'" href="#" data-slug="'+_pslug+'" onclick="openImgModal(event,\''+p[0]+'\',' + "'" + p[1].substring(0,60).replace(/'/g,'&#39;') + "'" + ')">'
+      + (_esNv2 ? '<span class="badge-nuevo">Nuevo</span>' : '')
       + '<div class="part-thumb-wrap pcard-img-wrap">'
       + '<img class="part-thumb" src="' + url + '" alt="' + p[0] + '" loading="lazy" referrerpolicy="no-referrer" onerror="imgErr(this)">'
       + ap + '<div class="part-name">' + esc(p[1].substring(0,50)) + '</div>'
@@ -24583,6 +24648,135 @@ document.addEventListener('DOMContentLoaded', function(){
   setTimeout(ctUpdateCounts, 1500);
   setTimeout(ctUpdateCounts, 4000);
 });
+</script>
+<script>
+/* ══════════════════════════════════════════════════════
+   PRODUCTOS NUEVOS — Set embebido (Data_masiva_inicial_25_03.xlsx)
+   246 productos con Status = "Nuevo"
+   No requiere archivo externo — funciona aunque se pegue el P=[] en el mismo HTML
+══════════════════════════════════════════════════════ */
+(function(){
+  window.NUEVOS_SET = new Set([
+    "0046500","0046600","0087432","0087433","0087434","0087435","0087436",
+    "0093026","0105504","0107709","0107710","0107711","0107712","0107713",
+    "0303108","0612525","0919036","0925891","0968769","0968770","0968938",
+    "0968939","0968948","0968949","1481003","1679740","1679741","1679742",
+    "1679743","1679744","1679745","1679746","1780039","1780040","1780041",
+    "1780042","1780043","1780044","1780045","1780046","1780047","1780048",
+    "1780049","1780050","1780051","1780052","1780053","1780054","1780055",
+    "1780056","1780057","1780058","1780059","1780060","1780061","1780062",
+    "1780063","1780065","1808506","1808507","1808508","1808509","1856696",
+    "1856697","1856981","1856982","1856984","1857494","1857495","1857496",
+    "1857787","1857788","1857789","1949414","1949415","1949416","1949417",
+    "1949418","1979662","1979663","2479606","2529735","2615801","2618301",
+    "2618302","2618501","2620181","2620182","2620184","2620185","2620189",
+    "2620190","2620191","2620194","2620195","2620196","2620198","2667317",
+    "2667318","2712805","2712806","2713401","2713402","2726801","2732700",
+    "2732704","2740603","2740604","2749008","2750302","2752211","2752212",
+    "2815501","2881309","2908801","2976094","2979187","2979188","2979189",
+    "2979190","2979191","2979192","2979193","2979194","2979195","2979196",
+    "2979197","2979198","2979199","2979212","2979213","2979214","2979215",
+    "2979216","2979217","2979218","2979219","2979220","2979221","2979222",
+    "2979223","2979224","2979225","2979226","2979227","2979228","2979229",
+    "2979230","2979231","3012339","3012340","3012341","3012343","3012344",
+    "3012345","3259909","3432721","3432722","3657207","3657208","3657209",
+    "3657210","3657211","3657212","3657213","3657214","3657215","3657216",
+    "3657217","3657218","3657219","3657220","3657221","3657222","3711494",
+    "3711495","3814501","3814502","3814503","3814504","3814505","3814506",
+    "3814507","3814508","3814509","3814510","3814511","3814512","3814513",
+    "3814514","3814515","3814516","3814517","3814518","4310016","4310018",
+    "4310020","4310022","4310023","4310025","4310026","4310029","4310031",
+    "4310032","4321887","4321888","4321889","4321890","4352715","4352716",
+    "4355054","4355055","4355056","4355057","4355058","4355059","4355060",
+    "4355061","4355062","4355063","4355064","4355065","4355066","4355067",
+    "4355068","4355069","4355070","4355071","4355072","4355073","6200300",
+    "6200490","6200491","6200492","6200493","6200700","6200701","6200702",
+    "6200703","6200704","6200705","6204935","6300048","6300049","7899996",
+    "7899997"
+  ]);
+})();
+
+/* ══ Función: ir a vista de Productos Nuevos ══ */
+window.ctGoNuevos = function(){
+  if(typeof P === 'undefined' || !window.NUEVOS_SET) return;
+  window._nuevosMode = true;
+  CAT_SOURCE = 'nuevos';
+  curC = '__ALL__';
+  curF_set = new Set();
+  curM_set = new Set();
+  curSrch = '';
+  window._curClasif = '';
+  var srch = document.getElementById('srch2');
+  if(srch) srch.value = '';
+  document.getElementById('cat-label').textContent = 'Novedades 2026';
+  document.getElementById('cat-h1').innerHTML =
+    '<span style="-webkit-text-fill-color:initial;background:none">🆕</span> <em>PRODUCTOS NUEVOS</em>';
+  var total = P.filter(function(p){ return window.NUEVOS_SET.has(p[0]); }).length;
+  document.getElementById('cat-pill').textContent = total.toLocaleString() + ' nuevos';
+  var backBtn = document.getElementById('back-clasif2');
+  if(backBtn){
+    backBtn.textContent = '← Clasificación';
+    backBtn.onclick = function(){ window._nuevosMode = false; showS('sc-clasif-tipo'); };
+  }
+  buildSidebar();
+  renderProds2();
+  showS('sc-cat');
+};
+/* Resetear _nuevosMode al entrar a otras clasificaciones */
+var _origCtGo = window.ctGoCategoria;
+window.ctGoCategoria = function(tipo){
+  window._nuevosMode = false;
+  _resetNuevosBtnStyle();
+  if(_origCtGo) _origCtGo(tipo);
+};
+
+/* ══ Botón "★ NUEVOS" — filtra la vista actual mostrando solo productos nuevos ══ */
+window.filtrarSoloNuevos = function(){
+  if(typeof P === 'undefined' || !window.NUEVOS_SET) return;
+  /* Toggle: si ya está activo, desactivar */
+  if(window._nuevosMode){
+    window._nuevosMode = false;
+    _resetNuevosBtnStyle();
+    renderProds2();
+    return;
+  }
+  window._nuevosMode = true;
+  /* Actualizar estado visual del botón */
+  var btn = document.getElementById('btn-solo-nuevos');
+  if(btn){
+    btn.style.background = 'linear-gradient(135deg,#E8192C,#b5101f)';
+    btn.style.boxShadow = '0 4px 18px rgba(232,25,44,.55)';
+    btn.innerHTML = '★ NUEVOS ✓';
+  }
+  var sbtn = document.getElementById('sidebar-btn-nuevos');
+  if(sbtn){
+    sbtn.style.background = 'linear-gradient(135deg,#E8192C,#b5101f)';
+    sbtn.style.boxShadow = '0 4px 18px rgba(232,25,44,.55)';
+  }
+  renderProds2();
+};
+
+function _resetNuevosBtnStyle(){
+  var btn = document.getElementById('btn-solo-nuevos');
+  if(btn){
+    btn.style.background = 'linear-gradient(135deg,rgba(232,25,44,.18),rgba(180,10,20,.1))';
+    btn.style.boxShadow = '0 2px 10px rgba(232,25,44,.3)';
+    btn.innerHTML = '★ NUEVOS';
+  }
+  var sbtn = document.getElementById('sidebar-btn-nuevos');
+  if(sbtn){
+    sbtn.style.background = 'linear-gradient(135deg,rgba(232,25,44,.2),rgba(140,8,16,.12))';
+    sbtn.style.boxShadow = '0 2px 12px rgba(232,25,44,.25)';
+  }
+}
+
+/* Resetear el estado visual del botón al limpiar filtros */
+var _origClearAll = window.clearAllFilters;
+window.clearAllFilters = function(){
+  window._nuevosMode = false;
+  _resetNuevosBtnStyle();
+  if(_origClearAll) _origClearAll();
+};
 </script>
 <script>
 /* Diesel Ligero circular carousel — same style as motopartes */
