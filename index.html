@@ -249,27 +249,18 @@ footer{text-align:center;padding:24px;border-top:1px solid var(--border);font-si
 .part-card.is-nuevo{border-color:rgba(232,25,44,.45)}
 .part-card.is-nuevo:hover{border-color:#E8192C;box-shadow:0 6px 24px rgba(232,25,44,.2)}
 
-/* ══ BADGE INNOVACIÓN — violeta, prioridad sobre Nuevo ══ */
+/* ══ BADGE INNOVACIÓN ══ */
 .badge-innovacion{
-  position:absolute;
-  top:6px;left:6px;
-  z-index:10;
+  position:absolute;top:6px;left:6px;z-index:10;
   background:linear-gradient(135deg,#7C3AED 0%,#5B21B6 100%);
-  color:#fff;
-  font-family:'Rajdhani',sans-serif;
-  font-size:8.5px;
-  font-weight:700;
-  letter-spacing:1.8px;
-  text-transform:uppercase;
-  padding:3px 8px 3px 7px;
+  color:#fff;font-family:'Rajdhani',sans-serif;font-size:8.5px;font-weight:700;
+  letter-spacing:1.8px;text-transform:uppercase;padding:3px 8px 3px 7px;
   border-radius:4px 12px 12px 4px;
   box-shadow:0 2px 10px rgba(124,58,237,.6),inset 0 1px 0 rgba(255,255,255,.25);
-  line-height:1.2;
-  pointer-events:none;
-  white-space:nowrap;
+  line-height:1.2;pointer-events:none;white-space:nowrap;
   animation:innov-flash 2.8s ease-in-out infinite;
 }
-.badge-innovacion::before{content:'&#x26A1; ';font-size:7px;opacity:.9;}
+.badge-innovacion::before{content:'\26A1 ';font-size:7px;opacity:.9;}
 @keyframes innov-flash{
   0%,100%{box-shadow:0 2px 10px rgba(124,58,237,.6)}
   50%{box-shadow:0 2px 18px rgba(124,58,237,.95),0 0 0 3px rgba(124,58,237,.15)}
@@ -3002,6 +2993,9 @@ window.PV_B64_DATA = "H4sIACSqxWkC/5S9WXfbPNYu+Fd4qtf6Tveq45QtibLTd7YsDwmd+BUZRV
 
 
 
+
+
+
 </head>
 <body style="display:none">
 <header><div class="hbar"></div>
@@ -3294,7 +3288,6 @@ MR134C
   </div>
   <style>
     @keyframes nuevo-bar-slide{0%{background-position:0% 0}100%{background-position:200% 0}}
-    @keyframes innov-bar-slide{0%{background-position:0% 0}100%{background-position:200% 0}}
     #sc-clasif-tipo button:hover { border-color:rgba(232,25,44,.6) !important; }
   </style>
 
@@ -3310,11 +3303,12 @@ MR134C
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
           <div id="ct-cnt-innovacion" style="font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#7C3AED,#5B21B6);border-radius:20px;padding:6px 16px;white-space:nowrap;box-shadow:0 2px 12px rgba(124,58,237,.45)">1,125 productos</div>
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;color:#7C3AED;font-weight:700;letter-spacing:1px">VER →</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;color:#a78bfa;font-weight:700;letter-spacing:1px">VER →</div>
         </div>
       </div>
     </button>
   </div>
+  <style>@keyframes innov-bar-slide{0%{background-position:0% 0}100%{background-position:200% 0}}</style>
 
   <style>
     #sc-clasif-tipo button[onclick] { transition: transform .18s, box-shadow .18s, border-color .18s; }
@@ -4050,7 +4044,6 @@ MR134C
 <div class="sec-hdr"><div class="sec-t" id="prod-sec">Productos</div><div class="sec-line"></div><div class="sec-cnt" id="prod-count"></div></div>
 <div class="parts-grid" id="prod-grid"></div>
 </div>
-
 
 
 <script>
@@ -20585,6 +20578,8 @@ var P=[
 </script>
 
 
+
+
 <div class="screen" id="sc-cat">
 <div style="padding:16px 20px 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
   <button class="back-btn" id="back-clasif2" style="margin:0">Marcas</button>
@@ -21104,7 +21099,7 @@ function makePcard(p){
   var _esInnov  = window.INNOVACION_SET && window.INNOVACION_SET.has(p[0]);
   var _nuevoClass = _esInnov ? ' is-innovacion' : (_esNuevo ? ' is-nuevo' : '');
   var _nuevoBadge = _esInnov
-    ? '<span class="badge-innovacion">Innovaci\u00f3n</span>'
+    ? '<span class="badge-innovacion">Innovación</span>'
     : (_esNuevo ? '<span class="badge-nuevo">Nuevo</span>' : '');
   return '<a class="pcard'+_nuevoClass+'" href="#" data-slug="'+_slug+'" onclick="openImgModal(event,\''+p[0]+'\',\''+safeName+'\')">'
     + _nuevoBadge
@@ -22289,9 +22284,9 @@ function renderPvGrid(list) {
     var _esNvIn  = window.INNOVACION_SET && window.INNOVACION_SET.has(p[0]);
     var _nvClass = _esNvIn ? ' is-innovacion' : (_esNv ? ' is-nuevo' : '');
     var _nvBadge = _esNvIn ? '<span class="badge-innovacion">Innovación</span>' : (_esNv ? '<span class="badge-nuevo">Nuevo</span>' : '');
-    h += '<a class="part-card'+_nvClass+'"' href="#" data-slug="'+_pslug+'" onclick="openImgModal(event,\''+p[0]+'\',' + "'" + p[1].substring(0,60).replace(/'/g,'&#39;') + "'" + ')">'
+    h += '<a class="part-card'+_nvClass+'" href="#" data-slug="'+_pslug+'" onclick="openImgModal(event,\''+p[0]+'\',' + "'" + p[1].substring(0,60).replace(/'/g,'&#39;') + "'" + ')">'
       + _nvBadge
-      + '<div class="part-thumb-wrap pcard-img-wrap">'
+      + '<div class="part-thumb-wrap pcard-img-wrap"'
       + '<img class="part-thumb" src="' + url + '" alt="' + p[0] + '" loading="lazy" referrerpolicy="no-referrer" onerror="imgErr(this)">'
       + ap
       + '<div class="part-name">' + esc(p[1].substring(0, 50)) + '</div>'
@@ -22374,9 +22369,9 @@ function renderPvGridKw(list, q) {
     var _esNv2In = window.INNOVACION_SET && window.INNOVACION_SET.has(p[0]);
     var _nv2Class = _esNv2In ? ' is-innovacion' : (_esNv2 ? ' is-nuevo' : '');
     var _nv2Badge = _esNv2In ? '<span class="badge-innovacion">Innovación</span>' : (_esNv2 ? '<span class="badge-nuevo">Nuevo</span>' : '');
-    h += '<a class="part-card'+_nv2Class+'"' href="#" data-slug="'+_pslug+'" onclick="openImgModal(event,\''+p[0]+'\',' + "'" + p[1].substring(0,60).replace(/'/g,'&#39;') + "'" + ')">'
+    h += '<a class="part-card'+_nv2Class+'" href="#" data-slug="'+_pslug+'" onclick="openImgModal(event,\''+p[0]+'\',' + "'" + p[1].substring(0,60).replace(/'/g,'&#39;') + "'" + ')">'
       + _nv2Badge
-      + '<div class="part-thumb-wrap pcard-img-wrap">'
+      + '<div class="part-thumb-wrap pcard-img-wrap"'
       + '<img class="part-thumb" src="' + url + '" alt="' + p[0] + '" loading="lazy" referrerpolicy="no-referrer" onerror="imgErr(this)">'
       + ap + '<div class="part-name">' + esc(p[1].substring(0,50)) + '</div>'
       + '<button class="part-add-btn" data-cart-btn="'+p[0]+'" onclick="cartAdd(\''+safeCode+'\',event)" aria-label="Agregar a canasta">+</button>'
@@ -24761,7 +24756,7 @@ document.addEventListener('DOMContentLoaded', function(){
     "7899997"
   ]);
 })();
-/* ══ Set de Innovación (inline) — 1125 productos ══ */
+/* ══ Set de Innovación — 1125 productos ══ */
 (function(){
   window.INNOVACION_SET = new Set([
     "4365806","0544311","2800610","1856682","0775909","5019800","5019801",
@@ -24928,6 +24923,83 @@ document.addEventListener('DOMContentLoaded', function(){
   ]);
 })();
 
+/* ══ Función: ir a vista de Innovación desde clasificación ══ */
+window.ctGoInnovacion = function(){
+  if(typeof P === 'undefined' || !window.INNOVACION_SET) return;
+  window._innovMode = true;
+  window._nuevosMode = false;
+  _resetNuevosBtnStyle();
+  CAT_SOURCE = 'innovacion';
+  curC = '__ALL__';
+  curF_set = new Set();
+  curM_set = new Set();
+  curSrch = '';
+  window._curClasif = '';
+  var srch = document.getElementById('srch2');
+  if(srch) srch.value = '';
+  document.getElementById('cat-label').textContent = 'Portafolio 2026';
+  document.getElementById('cat-h1').innerHTML =
+    '<span style="-webkit-text-fill-color:initial;background:none">&#x26A1;</span> <em>INNOVACIÓN</em>';
+  var total = P.filter(function(p){ return window.INNOVACION_SET.has(p[0]); }).length;
+  document.getElementById('cat-pill').textContent = total.toLocaleString() + ' productos';
+  var backBtn = document.getElementById('back-clasif2');
+  if(backBtn){
+    backBtn.textContent = '← Clasificación';
+    backBtn.onclick = function(){ window._innovMode = false; showS('sc-clasif-tipo'); };
+  }
+  buildSidebar();
+  renderProds2();
+  showS('sc-cat');
+};
+
+/* ══ Botón ⚡ INNOVACIÓN — toggle filtro en vista actual ══ */
+window.filtrarSoloInnovacion = function(){
+  if(typeof P === 'undefined' || !window.INNOVACION_SET) return;
+  if(window._innovMode){
+    window._innovMode = false;
+    _resetInnovBtnStyle();
+    renderProds2();
+    return;
+  }
+  if(window._nuevosMode){
+    window._nuevosMode = false;
+    _resetNuevosBtnStyle();
+  }
+  window._innovMode = true;
+  var btn = document.getElementById('btn-solo-innovacion');
+  if(btn){
+    btn.style.background = 'linear-gradient(135deg,#7C3AED,#5B21B6)';
+    btn.style.boxShadow  = '0 4px 18px rgba(124,58,237,.55)';
+    btn.innerHTML = '&#x26A1; INNOVACIÓN ✓';
+  }
+  renderProds2();
+};
+
+function _resetInnovBtnStyle(){
+  var btn = document.getElementById('btn-solo-innovacion');
+  if(btn){
+    btn.style.background = 'linear-gradient(135deg,rgba(124,58,237,.18),rgba(91,33,182,.1))';
+    btn.style.boxShadow  = '0 2px 10px rgba(124,58,237,.3)';
+    btn.innerHTML = '&#x26A1; INNOVACIÓN';
+  }
+}
+
+/* Resetear _innovMode al entrar a otras clasificaciones */
+(function(){
+  var _origCtGo = window.ctGoCategoria;
+  window.ctGoCategoria = function(tipo){
+    window._innovMode = false;
+    _resetInnovBtnStyle();
+    if(_origCtGo) _origCtGo(tipo);
+  };
+  var _origClearAll = window.clearAllFilters;
+  window.clearAllFilters = function(){
+    window._innovMode = false;
+    _resetInnovBtnStyle();
+    if(_origClearAll) _origClearAll();
+  };
+})();
+
 /* ══ Función: ir a vista de Productos Nuevos ══ */
 window.ctGoNuevos = function(){
   if(typeof P === 'undefined' || !window.NUEVOS_SET) return;
@@ -25008,87 +25080,6 @@ window.clearAllFilters = function(){
   window._nuevosMode = false;
   _resetNuevosBtnStyle();
   if(_origClearAll) _origClearAll();
-};
-/* ══════════════════════════════════════════════════════════════
-   INNOVACIÓN — filtro global + filtro en-sección
-══════════════════════════════════════════════════════════════ */
-
-/* 1. Función: ir a vista de Productos de Innovación (desde clasificación) */
-window.ctGoInnovacion = function(){
-  if(typeof P === 'undefined' || !window.INNOVACION_SET) return;
-  window._innovMode = true;
-  window._nuevosMode = false;
-  _resetNuevosBtnStyle();
-  CAT_SOURCE = 'innovacion';
-  curC = '__ALL__';
-  curF_set = new Set();
-  curM_set = new Set();
-  curSrch = '';
-  window._curClasif = '';
-  var srch = document.getElementById('srch2');
-  if(srch) srch.value = '';
-  document.getElementById('cat-label').textContent = 'Portafolio 2026';
-  document.getElementById('cat-h1').innerHTML =
-    '<span style="-webkit-text-fill-color:initial;background:none">&#x26A1;</span> <em>INNOVACIÓN</em>';
-  var total = P.filter(function(p){ return window.INNOVACION_SET.has(p[0]); }).length;
-  document.getElementById('cat-pill').textContent = total.toLocaleString() + ' productos';
-  var backBtn = document.getElementById('back-clasif2');
-  if(backBtn){
-    backBtn.textContent = '← Clasificación';
-    backBtn.onclick = function(){ window._innovMode = false; showS('sc-clasif-tipo'); };
-  }
-  buildSidebar();
-  renderProds2();
-  showS('sc-cat');
-};
-
-/* 2. Botón "⚡ INNOVACIÓN" — toggle filtro dentro de la vista actual */
-window.filtrarSoloInnovacion = function(){
-  if(typeof P === 'undefined' || !window.INNOVACION_SET) return;
-  if(window._innovMode){
-    window._innovMode = false;
-    _resetInnovBtnStyle();
-    renderProds2();
-    return;
-  }
-  /* Desactivar modo nuevos si estaba encendido */
-  if(window._nuevosMode){
-    window._nuevosMode = false;
-    _resetNuevosBtnStyle();
-  }
-  window._innovMode = true;
-  var btn = document.getElementById('btn-solo-innovacion');
-  if(btn){
-    btn.style.background = 'linear-gradient(135deg,#7C3AED,#5B21B6)';
-    btn.style.boxShadow  = '0 4px 18px rgba(124,58,237,.55)';
-    btn.innerHTML = '&#x26A1; INNOVACIÓN ✓';
-  }
-  renderProds2();
-};
-
-function _resetInnovBtnStyle(){
-  var btn = document.getElementById('btn-solo-innovacion');
-  if(btn){
-    btn.style.background = 'linear-gradient(135deg,rgba(124,58,237,.18),rgba(91,33,182,.1))';
-    btn.style.boxShadow  = '0 2px 10px rgba(124,58,237,.3)';
-    btn.innerHTML = '&#x26A1; INNOVACIÓN';
-  }
-}
-
-/* 3. Resetear _innovMode al entrar a otras clasificaciones */
-var _origCtGo2 = window.ctGoCategoria;
-window.ctGoCategoria = function(tipo){
-  window._innovMode = false;
-  _resetInnovBtnStyle();
-  if(_origCtGo2) _origCtGo2(tipo);
-};
-
-/* 4. Incluir en clearAllFilters */
-var _origClearAll2 = window.clearAllFilters;
-window.clearAllFilters = function(){
-  window._innovMode = false;
-  _resetInnovBtnStyle();
-  if(_origClearAll2) _origClearAll2();
 };
 </script>
 <script>
