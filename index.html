@@ -251,7 +251,7 @@ footer{text-align:center;padding:24px;border-top:1px solid var(--border);font-si
 
 /* ══ BADGE INNOVACIÓN ══ */
 .badge-innovacion{
-  position:absolute;top:6px;left:6px;z-index:10;
+  position:absolute;top:6px;right:6px;left:auto;z-index:10;
   background:linear-gradient(135deg,#7C3AED 0%,#5B21B6 100%);
   color:#fff;font-family:'Rajdhani',sans-serif;font-size:8.5px;font-weight:700;
   letter-spacing:1.8px;text-transform:uppercase;padding:3px 8px 3px 7px;
@@ -3280,7 +3280,7 @@ MR134C
           <div style="font-size:11px;color:#8890B8;letter-spacing:.5px">Incorporaciones más recientes al catálogo — identificados con etiqueta roja</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-          <div id="ct-cnt-nuevos" style="font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#E8192C,#b5101f);border-radius:20px;padding:6px 16px;white-space:nowrap;box-shadow:0 2px 12px rgba(232,25,44,.45)">246 productos</div>
+          <div id="ct-cnt-nuevos" style="font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#E8192C,#b5101f);border-radius:20px;padding:6px 16px;white-space:nowrap;box-shadow:0 2px 12px rgba(232,25,44,.45)">1,180 productos</div>
           <div style="font-family:'Rajdhani',sans-serif;font-size:13px;color:#E8192C;font-weight:700;letter-spacing:1px">VER →</div>
         </div>
       </div>
@@ -4383,7 +4383,7 @@ function clearAllFilters(){
   sfUpdateClearBtn();
 }
 
-function imgErr(el){el.style.display='none';el.parentElement.classList.add('no-img');}
+function imgErr(el){el.style.display='none';el.parentElement.classList.add('no-img');var _pc=el.closest('a');if(_pc)_pc.style.display='none';}
 
 /* ══ Precios ══ */
 function getPrice(code) {
@@ -4567,15 +4567,14 @@ function makePcard(p){
   var _slug = buildApymsaSlug(p);
   var _esNuevo  = window.NUEVOS_SET     && window.NUEVOS_SET.has(p[0]);
   var _esInnov  = window.INNOVACION_SET && window.INNOVACION_SET.has(p[0]);
-  var _nuevoClass = _esInnov ? ' is-innovacion' : (_esNuevo ? ' is-nuevo' : '');
-  var _nuevoBadge = _esInnov
-    ? '<span class="badge-innovacion">Innovación</span>'
-    : (_esNuevo ? '<span class="badge-nuevo">Nuevo</span>' : '');
+  var _nuevoClass = (_esInnov ? ' is-innovacion' : '') + (_esNuevo ? ' is-nuevo' : '');
+  var _nuevoBadge = (_esNuevo ? '<span class="badge-nuevo">Nuevo</span>' : '')
+    + (_esInnov ? '<span class="badge-innovacion">Innovación</span>' : '');
   return '<a class="pcard'+_nuevoClass+'" href="#" data-slug="'+_slug+'" onclick="openImgModal(event,\''+p[0]+'\',\''+safeName+'\')">'
     + _nuevoBadge
     + '<div class="pcard-img-wrap">'
     +   '<div class="pcard-circle"><img src="'+url+'" alt="'+p[0]+'" loading="lazy" referrerpolicy="no-referrer" '
-    +   'onerror="this.parentElement.classList.add(\'no-img\');this.style.display=\'none\';this.parentElement.textContent=\'📦\'"></div>'
+    +   'onerror="this.parentElement.classList.add(\'no-img\');this.style.display=\'none\';this.parentElement.textContent=\'📦\';var _pc=this.closest(\'a\');if(_pc)_pc.style.display=\'none\';"></div>'
     +   '<button class="pcard-add-btn" data-cart-btn="'+p[0]+'" onclick="cartAdd(\''+safeCode+'\',event)" aria-label="Agregar a canasta">+</button>'
     + '</div>'
     + '<div class="pcard-info">'
@@ -5752,8 +5751,9 @@ function renderPvGrid(list) {
     var _pslug = buildApymsaSlug(p);
     var _esNv    = window.NUEVOS_SET     && window.NUEVOS_SET.has(p[0]);
     var _esNvIn  = window.INNOVACION_SET && window.INNOVACION_SET.has(p[0]);
-    var _nvClass = _esNvIn ? ' is-innovacion' : (_esNv ? ' is-nuevo' : '');
-    var _nvBadge = _esNvIn ? '<span class="badge-innovacion">Innovación</span>' : (_esNv ? '<span class="badge-nuevo">Nuevo</span>' : '');
+    var _nvClass = (_esNvIn ? ' is-innovacion' : '') + (_esNv ? ' is-nuevo' : '');
+    var _nvBadge = (_esNv ? '<span class="badge-nuevo">Nuevo</span>' : '')
+      + (_esNvIn ? '<span class="badge-innovacion">Innovación</span>' : '');
     h += '<a class="part-card'+_nvClass+'" href="#" data-slug="'+_pslug+'" onclick="openImgModal(event,\''+p[0]+'\',' + "'" + p[1].substring(0,60).replace(/'/g,'&#39;') + "'" + ')">'
       + _nvBadge
       + '<div class="part-thumb-wrap pcard-img-wrap"'
@@ -5837,8 +5837,9 @@ function renderPvGridKw(list, q) {
     var _pslug = buildApymsaSlug(p);
     var _esNv2   = window.NUEVOS_SET     && window.NUEVOS_SET.has(p[0]);
     var _esNv2In = window.INNOVACION_SET && window.INNOVACION_SET.has(p[0]);
-    var _nv2Class = _esNv2In ? ' is-innovacion' : (_esNv2 ? ' is-nuevo' : '');
-    var _nv2Badge = _esNv2In ? '<span class="badge-innovacion">Innovación</span>' : (_esNv2 ? '<span class="badge-nuevo">Nuevo</span>' : '');
+    var _nv2Class = (_esNv2In ? ' is-innovacion' : '') + (_esNv2 ? ' is-nuevo' : '');
+    var _nv2Badge = (_esNv2 ? '<span class="badge-nuevo">Nuevo</span>' : '')
+      + (_esNv2In ? '<span class="badge-innovacion">Innovación</span>' : '');
     h += '<a class="part-card'+_nv2Class+'" href="#" data-slug="'+_pslug+'" onclick="openImgModal(event,\''+p[0]+'\',' + "'" + p[1].substring(0,60).replace(/'/g,'&#39;') + "'" + ')">'
       + _nv2Badge
       + '<div class="part-thumb-wrap pcard-img-wrap"'
@@ -8180,6 +8181,7 @@ document.addEventListener('DOMContentLoaded', function(){
   setTimeout(ctUpdateCounts, 4000);
 });
 </script>
+
 
 <script>
 var P=[
@@ -24973,6 +24975,7 @@ var P=[
 ["9990994","ADITIVO LIMPIAPARABRISAS 3780ML LIQUIDO BUG WASH PRESTONE 8146","LIQUIDO BUG WASH","Prestone","Aditivo","Limpiaparabrisas","Quimicos","Miscelaneos","https://www.apymsa.com.mx/Categorias/quimicos/aditivo/limpiaparabrisas/aditivo-limpiaparabrisas-3780ml-liquido-bug-wash-prestone-8146/9990994"]
 ];
 </script>
+
 
 
 
