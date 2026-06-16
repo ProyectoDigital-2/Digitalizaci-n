@@ -2998,7 +2998,6 @@ window.PV_B64_DATA = "H4sIACSqxWkC/5S9WXfbPNYu+Fd4qtf6Tveq45QtibLTd7YsDwmd+BUZRV
 
 
 
-
 </head>
 <body style="display:none">
 <header><div class="hbar"></div>
@@ -8441,7 +8440,6 @@ document.addEventListener('DOMContentLoaded', function(){
   setTimeout(ctUpdateCounts, 4000);
 });
 </script>
-
 
 <script>
 var P=[
@@ -26204,36 +26202,40 @@ document.addEventListener('DOMContentLoaded', function(){
 window.tfExportPDF = function(){
   var btn = document.getElementById('btn-tf-pdf');
   if(btn){ btn.innerHTML='⏳ Descargando...'; btn.disabled=true; btn.style.opacity='.6'; }
-  /* Restaurar botón al terminar — se llama desde el PDF al guardar */
   window._tfRestoreBtn = function(){
     if(btn){ btn.innerHTML='📒 PDF Catálogo por Modelo'; btn.disabled=false; btn.style.opacity='1'; }
   };
+
   var modelImgEl = window._tfModelImg || null;
   var modelName  = window._tfCurrentLabel || window._tfModelName || '';
   var modelYear  = window._tfCurrentYear  || 0;
-  /* Construir cart temporal con los productos visibles */
-  var visibleProds = window._prodFullList || [];
-  if(!visibleProds.length){
-    /* Fallback: leer las cards visibles del DOM */
-    var cards = document.querySelectorAll('#prod-grid .part-card[style!="display: none;"]');
-    var codes = [];
-    cards.forEach(function(c){ var d=c.getAttribute('data-slug'); if(d) codes.push({code:d.split('-')[0],name:'',qty:1}); });
-    visibleProds = codes;
-  }
-  /* Convertir lista de P a formato de cart */
+
+  /* Construir tfCart desde _prodFullList (ya filtrado por el renderizador) */
   var tfCart = [];
-  if(typeof P!=='undefined'){
-    var visibleSet = new Set();
-    /* Usar _prodFullList que ya es el arreglo filtrado */
-    (window._prodFullList||[]).forEach(function(p){ visibleSet.add(p[0]); });
-    P.forEach(function(p){
-      if(visibleSet.has(p[0])) tfCart.push({code:p[0], name:p[1]||'', qty:1});
-    });
+  if(typeof P !== 'undefined' && window._prodFullList && window._prodFullList.length){
+    var visSet = new Set(window._prodFullList.map(function(p){ return p[0]; }));
+    P.forEach(function(p){ if(visSet.has(p[0])) tfCart.push({code:p[0], name:p[1]||'', qty:1}); });
   }
-  if(!tfCart.length){ alert('No hay productos visibles para exportar.'); return; }
-  /* Llamar al modal de branding primero */
-  window._tfExportPending = { cart: tfCart, modelImgEl: modelImgEl, modelName: modelName, modelYear: modelYear };
-  cartShare({ layout:'circular', isTf: true });
+  if(!tfCart.length){
+    if(window._tfRestoreBtn) window._tfRestoreBtn();
+    alert('No hay productos visibles para exportar.');
+    return;
+  }
+
+  /* Llamar directamente a doGenCircularPDF — SIN pasar por cartShare */
+  var opts = { branding: true }; /* Con logo APYMSA por defecto */
+  function run(){
+    doGenCircularPDF(tfCart, modelImgEl, modelName, modelYear);
+  }
+  if(window.jspdf && window.jspdf.jsPDF){
+    run();
+  } else {
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload = function(){ run(); };
+    s.onerror = function(){ if(window._tfRestoreBtn) window._tfRestoreBtn(); alert('Error cargando jsPDF'); };
+    document.head.appendChild(s);
+  }
 };
 
 /* Mostrar/ocultar botón PDF flotilla según CAT_SOURCE */
