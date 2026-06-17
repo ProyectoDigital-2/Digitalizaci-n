@@ -8600,22 +8600,31 @@ window.ctGoCategoria = function(tipo) {
 };
 
 /* Actualizar contadores cuando P esté disponible */
+
+/* Actualizar contadores cuando P esté disponible */
 function ctUpdateCounts(){
   if(typeof P === 'undefined' || !Array.isArray(P)) return;
+
+  // 🕵️ Rol del Inspector: Traducimos "Motocicletas" a "Motopartes" en caliente antes de contar
+  P.forEach(function(p){
+    if (p[7] === 'Motocicletas') {
+      p[7] = 'Motopartes';
+    }
+  });
+
   var counts = { ligero:0, pesado:0, misc:0, moto:0 };
   P.forEach(function(p){
     var div = p[7]||'';
-    if(div === 'Servicio ligero')  counts.ligero++;
+    if(div === 'Servicio ligero')      counts.ligero++;
     else if(div === 'Servicio Pesado') counts.pesado++;
-    else if(div === 'Miscelaneos')     counts.misc++;
-    else if(div === 'Motopartes')      counts.moto++;
+    else if(div === 'Miscelaneos')      counts.misc++;
+    else if(div === 'Motopartes')       counts.moto++;
   });
   for(var tipo in counts){
     var el = document.getElementById(CT_MAP[tipo].badge);
     if(el) el.textContent = counts[tipo].toLocaleString() + ' productos';
   }
 }
-
 document.addEventListener('DOMContentLoaded', function(){
   /* Intentar inmediatamente y luego con retry */
   ctUpdateCounts();
