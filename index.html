@@ -3369,6 +3369,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
 //# sourceMappingURL=jspdf.umd.min.js.map
 
 </script>
+
+
+
 </head>
 <body style="display:none">
 <header><div class="hbar"></div>
@@ -8569,7 +8572,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-
+HTML
 <script>
 
 /* ══ CLASIFICACIÓN POR TIPO ══ */
@@ -8597,7 +8600,6 @@ var CT_MAP = {
   moto:   { div: 'Motopartes',       label: 'Motopartes',      badge: 'ct-cnt-moto',   emoji: '🏍️' },
 };
 
-// Variable global para rastrear el estado del botón (encendido/apagado)
 var basicoActivo = false;
 
 window.ctGoCategoria = function(tipo) {
@@ -8628,122 +8630,107 @@ window.ctGoCategoria = function(tipo) {
     backBtn.onclick = function(){ showS('sc-clasif-tipo'); };
   }
 
-  // Reiniciamos el estado del interruptor al cambiar de categoría principal
+  // Reseteamos el estado al cambiar de categoría principal
   basicoActivo = false;
 
-  // ── CONTROL DINÁMICO DEL BOTÓN "CATÁLOGO BÁSICO" ──
-  var filterBar = document.querySelector('.sc-cat-filters') || document.querySelector('.div-tab') || document.getElementById('cat-pill').parentNode;
-  
+  // Remover botón si existía de antes
   var viejoBtn = document.getElementById('btn-basico-moto');
   if(viejoBtn) viejoBtn.remove();
 
+  // 🎯 AQUÍ SE ASEGURA QUE SOLO APAREZCA EN MOTOPARTES
   if(tipo === 'moto') {
-    var btnBasico = document.createElement('button');
-    btnBasico.id = 'btn-basico-moto';
-    btnBasico.textContent = '📋 CATÁLOGO BÁSICO';
+    var filterBar = document.querySelector('.sc-cat-filters') || document.querySelector('.div-tab') || document.getElementById('cat-pill').parentNode;
     
-    // Estilos iniciales (Apagado / Desactivado)
-    btnBasico.style.padding = '6px 14px';
-    btnBasico.style.marginLeft = '8px';
-    btnBasico.style.background = 'rgba(0, 212, 255, 0.05)';
-    btnBasico.style.border = '1px solid rgba(0, 212, 255, 0.3)';
-    btnBasico.style.color = '#8890B8'; // Gris apagado
-    btnBasico.style.borderRadius = '4px';
-    btnBasico.style.cursor = 'pointer';
-    btnBasico.style.fontSize = '12px';
-    btnBasico.style.fontWeight = '700';
-    btnBasico.style.fontFamily = "'Rajdhani', sans-serif";
-    btnBasico.style.letterSpacing = '1px';
-    btnBasico.style.transition = 'all 0.2s';
+    if(filterBar) {
+      var btnBasico = document.createElement('button');
+      btnBasico.id = 'btn-basico-moto';
+      btnBasico.textContent = '📋 CATÁLOGO BÁSICO';
+      
+      // Estilos visuales estándar
+      btnBasico.style.padding = '6px 14px';
+      btnBasico.style.marginLeft = '8px';
+      btnBasico.style.background = 'rgba(0, 212, 255, 0.05)';
+      btnBasico.style.border = '1px solid rgba(0, 212, 255, 0.3)';
+      btnBasico.style.color = '#8890B8';
+      btnBasico.style.borderRadius = '4px';
+      btnBasico.style.cursor = 'pointer';
+      btnBasico.style.fontSize = '12px';
+      btnBasico.style.fontWeight = '700';
+      btnBasico.style.fontFamily = "'Rajdhani', sans-serif";
+      btnBasico.style.letterSpacing = '1px';
+      btnBasico.style.transition = 'all 0.2s';
 
-    // Funciones para refrescar el look visual dependiendo de si está activo o no
-    function pintarBoton() {
-      if (basicoActivo) {
-        btnBasico.textContent = '✓ CATÁLOGO BÁSICO';
-        btnBasico.style.background = 'var(--amber)'; // Color sólido neón
-        btnBasico.style.color = '#000'; // Texto negro para contraste
-        btnBasico.style.border = '1px solid var(--amber)';
-        btnBasico.style.boxShadow = '0 0 10px var(--amber)';
-      } else {
-        btnBasico.textContent = '📋 CATÁLOGO BÁSICO';
-        btnBasico.style.background = 'rgba(0, 212, 255, 0.05)';
-        btnBasico.style.color = '#8890B8';
-        btnBasico.style.border = '1px solid rgba(0, 212, 255, 0.3)';
-        btnBasico.style.boxShadow = 'none';
+      function pintarBoton() {
+        if (basicoActivo) {
+          btnBasico.textContent = '✓ CATÁLOGO BÁSICO';
+          btnBasico.style.background = 'var(--amber)';
+          btnBasico.style.color = '#000';
+          btnBasico.style.border = '1px solid var(--amber)';
+          btnBasico.style.boxShadow = '0 0 10px var(--amber)';
+        } else {
+          btnBasico.textContent = '📋 CATÁLOGO BÁSICO';
+          btnBasico.style.background = 'rgba(0, 212, 255, 0.05)';
+          btnBasico.style.color = '#8890B8';
+          btnBasico.style.border = '1px solid rgba(0, 212, 255, 0.3)';
+          btnBasico.style.boxShadow = 'none';
+        }
       }
+
+      btnBasico.onclick = function() {
+        if(typeof P === 'undefined') return;
+        basicoActivo = !basicoActivo;
+        pintarBoton();
+
+        if (basicoActivo) {
+          var filtrados = P.filter(function(p) {
+            return p[7] === 'Motopartes' && CODIGOS_BASICO_MOTO.includes(String(p[0]).trim());
+          });
+          document.getElementById('cat-pill').textContent = filtrados.length.toLocaleString() + ' en Catálogo Básico';
+          window._innovMode = true;
+          window._filteredProds = filtrados;
+          CAT_SOURCE = 'innovacion';
+          buildSidebar();
+          renderProds2();
+        } else {
+          document.getElementById('cat-pill').textContent = total.toLocaleString() + ' productos';
+          window._innovMode = false;
+          window._filteredProds = null;
+          CAT_SOURCE = 'clasif';
+          buildSidebar();
+          renderProds2();
+        }
+      };
+
+      btnBasico.onmouseenter = function() { if(!basicoActivo) { this.style.background = 'rgba(0, 212, 255, 0.15)'; this.style.color = '#fff'; } };
+      btnBasico.onmouseleave = function() { if(!basicoActivo) pintarBoton(); };
+
+      filterBar.appendChild(btnBasico);
     }
-
-    btnBasico.onmouseenter = function() { 
-      if(!basicoActivo) {
-        this.style.background = 'rgba(0, 212, 255, 0.15)'; 
-        this.style.color = '#fff'; 
-      }
-    };
-    btnBasico.onmouseleave = function() { 
-      if(!basicoActivo) pintarBoton();
-    };
-
-    // 🚀 INTERRUPTOR: Acción al hacer Clic
-    btnBasico.onclick = function() {
-      if(typeof P === 'undefined') return;
-
-      // Invertimos el estado (si estaba apagado se enciende, y viceversa)
-      basicoActivo = !basicoActivo;
-      pintarBoton();
-
-      if (basicoActivo) {
-        // ACCIÓN DE FILTRAR: Dejar sólo tus códigos especiales
-        var filtrados = P.filter(function(p) {
-          var codigoOriginal = String(p[0] || '').trim(); 
-          return p[7] === 'Motopartes' && CODIGOS_BASICO_MOTO.includes(codigoOriginal);
-        });
-
-        document.getElementById('cat-pill').textContent = filtrados.length.toLocaleString() + ' en Catálogo Básico';
-        CAT_SOURCE = 'basico_moto';
-
-        if(typeof renderProds2 === 'function') {
-          window._filteredProds = filtrados; 
-          renderProds2(filtrados);
-        }
-      } else {
-        // ACCIÓN DE QUITAR FILTRO: Regresar a mostrar todas las Motopartes
-        document.getElementById('cat-pill').textContent = total.toLocaleString() + ' productos';
-        CAT_SOURCE = 'clasif'; // Reestablece el origen al catálogo completo
-
-        if(typeof renderProds2 === 'function') {
-          window._filteredProds = null; // Limpiamos la inyección forzada
-          renderProds2(); // Renderiza de forma nativa todo el segmento
-        }
-      }
-    };
-
-    filterBar.appendChild(btnBasico);
   }
 
+  // Flujo normal de renderizado de la app
   buildSidebar();
   renderProds2();
   showS('sc-cat');
 };
 
-/* Actualizar contadores cuando P esté disponible */
+/* Inicializador de conteos nativo */
 function ctUpdateCounts(){
   if(typeof P === 'undefined' || !Array.isArray(P)) return;
 
-  // Inspector de APYMSA
   P.forEach(function(p){
-    if (p[7] === 'Motocicletas') {
-      p[7] = 'Motopartes';
-    }
+    if (p[7] === 'Motocicletas') p[7] = 'Motopartes';
   });
 
   var counts = { ligero:0, pesado:0, misc:0, moto:0 };
   P.forEach(function(p){
     var div = p[7]||'';
-    if(div === 'Servicio ligero')      counts.ligero++;
+    if(div === 'Servicio ligero')       counts.ligero++;
     else if(div === 'Servicio Pesado') counts.pesado++;
     else if(div === 'Miscelaneos')      counts.misc++;
     else if(div === 'Motopartes')       counts.moto++;
   });
+
   for(var tipo in counts){
     var el = document.getElementById(CT_MAP[tipo].badge);
     if(el) el.textContent = counts[tipo].toLocaleString() + ' productos';
@@ -8755,6 +8742,7 @@ document.addEventListener('DOMContentLoaded', function(){
   setTimeout(ctUpdateCounts, 1500);
   setTimeout(ctUpdateCounts, 4000);
 });
+
 </script>
 
 <script>
@@ -25549,6 +25537,182 @@ var P=[
 ["9990994","ADITIVO LIMPIAPARABRISAS 3780ML LIQUIDO BUG WASH PRESTONE 8146","LIQUIDO BUG WASH","Prestone","Aditivo","Limpiaparabrisas","Quimicos","Miscelaneos","https://www.apymsa.com.mx/Categorias/quimicos/aditivo/limpiaparabrisas/aditivo-limpiaparabrisas-3780ml-liquido-bug-wash-prestone-8146/9990994"]
 ];
 </script>
+
+
+
+HTML
+<script>
+
+/* ══ CLASIFICACIÓN POR TIPO ══ */
+
+// 📋 Lista de códigos de tu Catálogo Básico de Motopartes
+var CODIGOS_BASICO_MOTO = [
+  "2498920", "5903903", "5903912", "5903904", "5903901", "5903906", "5903914", "5903896", 
+  "5903911", "5903907", "5903900", "5904982", "5905474", "5905850", "0779938", "0779939", 
+  "0564212", "5909007", "5909009", "5910405", "5911413", "5911412", "5911411", "5911414", 
+  "5913610", "5914913", "5915715", "5915817", "5916264", "5918602", "5919070", "5919066", 
+  "2032000", "5921383", "5921374", "5926540", "2009031", "5927889", "5928276", "5928649", 
+  "5929034", "5933144", "5933730", "5936287", "5937395", "5937614", "5937611", "5938041", 
+  "5938037", "5938469", "5987888", "5942772", "5942771", "5945380", "2498921", "5904288", 
+  "5904679", "5904678", "5907414", "5909206", "5909002", "5910214", "5910221", "5910206", 
+  "5910207", "5910615", "5910616", "5912214", "5913012", "5914619", "5915015", "5915014", 
+  "5915013", "5920139", "5920138", "5919998", "5920001", "5920293", "5921830", "5926244", 
+  "5926249", "5926242", "5926296", "5926294", "5926267", "5926268", "5926297", "6200230", 
+  "5939330", "5940832"
+]; 
+
+var CT_MAP = {
+  ligero: { div: 'Servicio ligero',  label: 'Servicio Ligero', badge: 'ct-cnt-ligero', emoji: '🚗' },
+  pesado: { div: 'Servicio Pesado',  label: 'Servicio Pesado', badge: 'ct-cnt-pesado', emoji: '🚛' },
+  misc:   { div: 'Miscelaneos',      label: 'Misceláneos',     badge: 'ct-cnt-misc',   emoji: '🔧' },
+  moto:   { div: 'Motopartes',       label: 'Motopartes',      badge: 'ct-cnt-moto',   emoji: '🏍️' },
+};
+
+var basicoActivo = false;
+
+window.ctGoCategoria = function(tipo) {
+  var cfg = CT_MAP[tipo];
+  if(!cfg) return;
+
+  CAT_SOURCE = 'clasif';
+  curC = '__ALL__';
+  curF_set = new Set();
+  curM_set = new Set();
+  curSrch = '';
+  window._curClasif = cfg.div;
+  var srch = document.getElementById('srch2');
+  if(srch) srch.value = '';
+  
+  document.getElementById('cat-label').textContent = 'Clasificación';
+  document.getElementById('cat-h1').innerHTML =
+    '<span style="-webkit-text-fill-color:initial;background:none">' + cfg.emoji + '</span> <em>' + cfg.label + '</em>';
+
+  var total = typeof P !== 'undefined'
+    ? P.filter(function(p){ return (p[7]||'') === cfg.div; }).length
+    : 0;
+  document.getElementById('cat-pill').textContent = total.toLocaleString() + ' productos';
+
+  var backBtn = document.getElementById('back-clasif2');
+  if(backBtn){
+    backBtn.textContent = '← Clasificación';
+    backBtn.onclick = function(){ showS('sc-clasif-tipo'); };
+  }
+
+  // Reseteamos el estado al cambiar de categoría principal
+  basicoActivo = false;
+
+  // Remover botón si existía de antes
+  var viejoBtn = document.getElementById('btn-basico-moto');
+  if(viejoBtn) viejoBtn.remove();
+
+  // 🎯 AQUÍ SE ASEGURA QUE SOLO APAREZCA EN MOTOPARTES
+  if(tipo === 'moto') {
+    var filterBar = document.querySelector('.sc-cat-filters') || document.querySelector('.div-tab') || document.getElementById('cat-pill').parentNode;
+    
+    if(filterBar) {
+      var btnBasico = document.createElement('button');
+      btnBasico.id = 'btn-basico-moto';
+      btnBasico.textContent = '📋 CATÁLOGO BÁSICO';
+      
+      // Estilos visuales estándar
+      btnBasico.style.padding = '6px 14px';
+      btnBasico.style.marginLeft = '8px';
+      btnBasico.style.background = 'rgba(0, 212, 255, 0.05)';
+      btnBasico.style.border = '1px solid rgba(0, 212, 255, 0.3)';
+      btnBasico.style.color = '#8890B8';
+      btnBasico.style.borderRadius = '4px';
+      btnBasico.style.cursor = 'pointer';
+      btnBasico.style.fontSize = '12px';
+      btnBasico.style.fontWeight = '700';
+      btnBasico.style.fontFamily = "'Rajdhani', sans-serif";
+      btnBasico.style.letterSpacing = '1px';
+      btnBasico.style.transition = 'all 0.2s';
+
+      function pintarBoton() {
+        if (basicoActivo) {
+          btnBasico.textContent = '✓ CATÁLOGO BÁSICO';
+          btnBasico.style.background = 'var(--amber)';
+          btnBasico.style.color = '#000';
+          btnBasico.style.border = '1px solid var(--amber)';
+          btnBasico.style.boxShadow = '0 0 10px var(--amber)';
+        } else {
+          btnBasico.textContent = '📋 CATÁLOGO BÁSICO';
+          btnBasico.style.background = 'rgba(0, 212, 255, 0.05)';
+          btnBasico.style.color = '#8890B8';
+          btnBasico.style.border = '1px solid rgba(0, 212, 255, 0.3)';
+          btnBasico.style.boxShadow = 'none';
+        }
+      }
+
+      btnBasico.onclick = function() {
+        if(typeof P === 'undefined') return;
+        basicoActivo = !basicoActivo;
+        pintarBoton();
+
+        if (basicoActivo) {
+          var filtrados = P.filter(function(p) {
+            return p[7] === 'Motopartes' && CODIGOS_BASICO_MOTO.includes(String(p[0]).trim());
+          });
+          document.getElementById('cat-pill').textContent = filtrados.length.toLocaleString() + ' en Catálogo Básico';
+          window._innovMode = true;
+          window._filteredProds = filtrados;
+          CAT_SOURCE = 'innovacion';
+          buildSidebar();
+          renderProds2();
+        } else {
+          document.getElementById('cat-pill').textContent = total.toLocaleString() + ' productos';
+          window._innovMode = false;
+          window._filteredProds = null;
+          CAT_SOURCE = 'clasif';
+          buildSidebar();
+          renderProds2();
+        }
+      };
+
+      btnBasico.onmouseenter = function() { if(!basicoActivo) { this.style.background = 'rgba(0, 212, 255, 0.15)'; this.style.color = '#fff'; } };
+      btnBasico.onmouseleave = function() { if(!basicoActivo) pintarBoton(); };
+
+      filterBar.appendChild(btnBasico);
+    }
+  }
+
+  // Flujo normal de renderizado de la app
+  buildSidebar();
+  renderProds2();
+  showS('sc-cat');
+};
+
+/* Inicializador de conteos nativo */
+function ctUpdateCounts(){
+  if(typeof P === 'undefined' || !Array.isArray(P)) return;
+
+  P.forEach(function(p){
+    if (p[7] === 'Motocicletas') p[7] = 'Motopartes';
+  });
+
+  var counts = { ligero:0, pesado:0, misc:0, moto:0 };
+  P.forEach(function(p){
+    var div = p[7]||'';
+    if(div === 'Servicio ligero')       counts.ligero++;
+    else if(div === 'Servicio Pesado') counts.pesado++;
+    else if(div === 'Miscelaneos')      counts.misc++;
+    else if(div === 'Motopartes')       counts.moto++;
+  });
+
+  for(var tipo in counts){
+    var el = document.getElementById(CT_MAP[tipo].badge);
+    if(el) el.textContent = counts[tipo].toLocaleString() + ' productos';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  ctUpdateCounts();
+  setTimeout(ctUpdateCounts, 1500);
+  setTimeout(ctUpdateCounts, 4000);
+});
+
+</script>
+
 
 
 
