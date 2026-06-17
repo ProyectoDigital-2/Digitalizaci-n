@@ -4865,9 +4865,20 @@ function renderProds2(){
   if(window._nuevosMode && window.NUEVOS_SET){
     list=list.filter(function(p){ return window.NUEVOS_SET.has(p[0]); });
   }
-  /* ── Filtro INNOVACIÓN ── */
+
+/* ── Filtro INNOVACIÓN ── */
   if(window._innovMode && window.INNOVACION_SET){
-    list=list.filter(function(p){ return window.INNOVACION_SET.has(p[0]); });
+    // Si ya validamos las fotos reales en el servidor, usamos esa lista limpia directamente
+    if(window._filteredProds) {
+      list = window._filteredProds;
+    } else {
+      // Respaldo en caso de que no haya terminado la precarga
+      list = list.filter(function(p){ 
+        var enInnovacion = window.INNOVACION_SET.has(p[0]);
+        var tieneImagen = p[3] && String(p[3]).trim() !== "" && String(p[3]).toLowerCase() !== "no_image";
+        return enInnovacion && tieneImagen; 
+      });
+    }
   }
 
   /* Cápsulas: calcular familias ANTES del filtro de familia */
@@ -4879,6 +4890,7 @@ function renderProds2(){
     var _pb=document.getElementById('tf-fam-pills-bar');
     if(_pb) _pb.style.display='none';
   }
+
 
   /* Aplicar filtro de familia */
   if(curF_set.size) list=list.filter(function(p){ return curF_set.has(p[4]); });
@@ -25888,7 +25900,7 @@ var P=[
   ]);
 })();
 
-/* ══ Función: ir a vista de Innovación desde clasificación ══ */
+/* ══ Función: ir a vista de Innovación desde clasificación (CON FILTRO DE FOTO REAL) ══ */
 window.ctGoInnovacion = function(){
   if(typeof P === 'undefined' || !window.INNOVACION_SET) return;
   window._innovMode = true;
@@ -25902,20 +25914,72 @@ window.ctGoInnovacion = function(){
   window._curClasif = '';
   var srch = document.getElementById('srch2');
   if(srch) srch.value = '';
+  
   document.getElementById('cat-label').textContent = 'Portafolio 2026';
   document.getElementById('cat-h1').innerHTML =
     '<span style="-webkit-text-fill-color:initial;background:none">&#x26A1;</span> <em>INNOVACIÓN</em>';
-  var total = P.filter(function(p){ return window.INNOVACION_SET.has(p[0]); }).length;
-  document.getElementById('cat-pill').textContent = total.toLocaleString() + ' productos';
-  var backBtn = document.getElementById('back-clasif2');
-  if(backBtn){
-    backBtn.textContent = '← Clasificación';
-    backBtn.onclick = function(){ window._innovMode = false; showS('sc-clasif-tipo'); };
+  
+  // 1. Obtenemos los productos base que pertenecen al set de innovación
+  var candidatos = P.filter(function(p){ return window.INNOVACION_SET.has(p[0]); });
+  
+  document.getElementById('cat-pill').textContent = 'Verificando imágenes...';
+  
+  var filtradosConFoto = [];
+  var procesados = 0;
+  
+  if (candidatos.length === 0) {
+    document.getElementById('cat-pill').textContent = '0 productos';
+    window._filteredProds = [];
+    renderProds2();
+    showS('sc-cat');
+    return;
   }
-  buildSidebar();
-  renderProds2();
-  showS('sc-cat');
+
+  // 2. Validación activa en el servidor de APYMSA
+  candidatos.forEach(function(p) {
+    var imgTester = new Image();
+    var codigo = String(p[0] || '').trim();
+    
+    imgTester.onload = function() {
+      filtradosConFoto.push(p);
+      comprobarTermino();
+    };
+    
+    imgTester.onerror = function() {
+      // Si el servidor de APYMSA responde que la foto no existe, se ignora el producto
+      comprobarTermino();
+    };
+
+    // Apuntamos a la ruta exacta de tus imágenes
+    imgTester.src = 'https://resources.apymsa.com.mx/imagenes/FotosSpeed/' + codigo + '/' + codigo + '2a.jpg';
+  });
+
+  function comprobarTermino() {
+    procesados++;
+    if (procesados === candidatos.length) {
+      // Guardamos la lista depurada en la variable global que lee renderProds2
+      window._filteredProds = filtradosConFoto;
+      
+      document.getElementById('cat-pill').textContent = filtradosConFoto.length.toLocaleString() + ' productos';
+      
+      var backBtn = document.getElementById('back-clasif2');
+      if(backBtn){
+        backBtn.textContent = '← Clasificación';
+        backBtn.onclick = function(){ 
+          window._innovMode = false; 
+          window._filteredProds = null; // Limpiamos al salir
+          showS('sc-clasif-tipo'); 
+        };
+      }
+      
+      buildSidebar();
+      renderProds2(); // Ahora pintará la lista sin los recuadros vacíos
+      showS('sc-cat');
+    }
+  }
 };
+
+
 
 /* ══ Botón ⚡ INNOVACIÓN — toggle filtro en vista actual ══ */
 window.filtrarSoloInnovacion = function(){
