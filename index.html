@@ -3462,8 +3462,21 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
         </div>
 
 
-        <!-- Card 4: Catálogo TLC (Próximamente) -->
+        <!-- Card 4: Cotizador / Promociones -->
         <div class="car-slide" data-idx="4">
+          <div class="car-slide-inner">
+            <div class="car-ring car-ring-right"></div>
+            <button type="button" class="car-card car-card-right" onclick="showS('sc-cotizador')">
+              <div class="car-ring-inner">🧾</div>
+              <div class="car-card-name">Cotizador / Promociones</div>
+              <div class="car-card-desc">Genera cotizaciones con precio y precio promoción al instante</div>
+              <div class="car-card-cta car-cta-right">Cotizar →</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 5: Catálogo TLC (Próximamente) -->
+        <div class="car-slide" data-idx="5">
           <div class="car-slide-inner">
             <div class="car-ring car-ring-right"></div>
             <button type="button" class="car-card car-card-right car-card-coming" onclick="alert('🚧 Catálogo TLC — Próximamente disponible.\n\nEsta sección está en desarrollo.')">
@@ -3475,8 +3488,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
           </div>
         </div>
 
-        <!-- Card 5: Material Marketing -->
-        <div class="car-slide" data-idx="5">
+        <!-- Card 6: Material Marketing -->
+        <div class="car-slide" data-idx="6">
           <div class="car-slide-inner">
             <div class="car-ring car-ring-left"></div>
             <button type="button" class="car-card car-card-left" onclick="showS('sc-marketing')">
@@ -3489,8 +3502,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
         </div>
 
 
-        <!-- Card 6: Entradas CEDIS -->
-        <div class="car-slide" data-idx="6">
+        <!-- Card 7: Entradas CEDIS -->
+        <div class="car-slide" data-idx="7">
           <div class="car-slide-inner">
             <div class="car-ring car-ring-right"></div>
             <button type="button" class="car-card car-card-right" onclick="window.open('cedis.html','_blank')">
@@ -3501,6 +3514,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
             </button>
           </div>
         </div>
+
 
       </div>
     </div>
@@ -3519,6 +3533,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
       <span class="car-dot" onclick="carGo(4)"></span>
       <span class="car-dot" onclick="carGo(5)"></span>
       <span class="car-dot" onclick="carGo(6)"></span>
+      <span class="car-dot" onclick="carGo(7)"></span>
     </div>
   </div>
 
@@ -6655,7 +6670,7 @@ document.addEventListener('keydown', function(e){
 
 // ═══ HOME CAROUSEL ═══
 var CAR_CUR = 0;
-var CAR_TOTAL = 7;
+var CAR_TOTAL = 8;
 var _carStartX = null;
 
 function carGo(idx) {
@@ -25714,7 +25729,7 @@ var P=[
 
 
 
-HTML
+
 <script>
 
 /* ══ CLASIFICACIÓN POR TIPO ══ */
@@ -27860,5 +27875,451 @@ window.ctGoInvNoProductivo = function(){
   showS('sc-cat');
 };
 
+
+/* ══ COTIZADOR ══ */
+var COT_ITEMS = [];
+function cotFmt(n){ return n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function cotImportarColumnas() {
+  var errEl = document.getElementById('cot-col-error');
+  errEl.style.display = 'none';
+
+  var rawCant   = document.getElementById('cot-col-cant').value.trim();
+  var rawCodigo = document.getElementById('cot-col-codigo').value.trim();
+  var rawPrecio = document.getElementById('cot-col-precio').value.trim();
+  var rawPromo  = document.getElementById('cot-col-promo').value.trim();
+
+  if(!rawCodigo){ errEl.textContent = 'Pega al menos los códigos.'; errEl.style.display='block'; return; }
+  if(!rawPrecio){ errEl.textContent = 'Pega al menos los precios.'; errEl.style.display='block'; return; }
+
+  var split = function(raw){ return raw ? raw.split(/\n/).map(function(l){ return l.trim(); }).filter(Boolean) : []; };
+
+  var codigos = split(rawCodigo);
+  var precios = split(rawPrecio);
+  var cantidades = split(rawCant);
+  var promos = split(rawPromo);
+
+  var n = codigos.length;
+  var errores = [], agregados = 0;
+
+  for(var i=0; i<n; i++){
+    var cant = cantidades[i] ? (parseInt(cantidades[i])||1) : 1;
+    var codigo = codigos[i];
+    var precio = parseFloat((precios[i]||'').replace(/[^0-9.]/g,''));
+    var promo = promos[i] ? parseFloat((promos[i]||'').replace(/[^0-9.]/g,'')) : null;
+    if(!codigo){ errores.push('Fila '+(i+1)+': código vacío'); continue; }
+    if(!precio||isNaN(precio)){ errores.push('Fila '+(i+1)+': precio inválido'); continue; }
+    if(promo && isNaN(promo)) promo = null;
+    cotAgregarItem(cant, codigo, precio, promo);
+    agregados++;
+  }
+
+  if(errores.length){ errEl.innerHTML = errores.join('<br>'); errEl.style.display='block'; }
+  if(agregados > 0){
+    document.getElementById('cot-col-cant').value = '';
+    document.getElementById('cot-col-codigo').value = '';
+    document.getElementById('cot-col-precio').value = '';
+    document.getElementById('cot-col-promo').value = '';
+  }
+}
+
+function cotAgregarItem(cant, codigo, precio, promo) {
+  var prod = typeof P !== 'undefined' ? P.find(function(p){ return String(p[0]).trim() === String(codigo).trim(); }) : null;
+  COT_ITEMS.push({ cant:cant, codigo:codigo, precio:precio, promo:promo, desc: prod ? prod[1] : '—', marca: prod ? (prod[3]||'') : '' });
+  cotRenderTabla();
+}
+
+function cotRenderTabla() {
+  var body = document.getElementById('cot-tabla-body');
+  var wrap = document.getElementById('cot-tabla-wrap');
+  wrap.style.display = COT_ITEMS.length ? 'block' : 'none';
+  document.getElementById('cot-items-count').textContent = COT_ITEMS.length;
+  var totalLista = 0, totalPromo = 0;
+
+  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:4px 0">';
+
+  COT_ITEMS.forEach(function(item, i){
+    var subtotalLista = item.cant * item.precio;
+    var subtotalPromo = item.promo ? item.cant * item.promo : subtotalLista;
+    totalLista += subtotalLista;
+    totalPromo += subtotalPromo;
+    var tienePromo = item.promo && item.promo < item.precio;
+    var url = 'https://resources.apymsa.com.mx/imagenes/FotosSpeed/'+item.codigo+'/'+item.codigo+'2a.jpg';
+    var marca = item.marca || '';
+    var metaHtml = marca ? '<div class="pcard-meta-wrap"><span class="pcard-meta-marca">'+esc(marca)+'</span></div>' : '';
+
+    html += '<div style="position:relative;background:#0e0e20;border:1.5px solid #1c1c38;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">'
+      // Precio badge top
+      + '<div style="position:absolute;top:6px;left:6px;z-index:2;display:flex;flex-direction:column;gap:3px">'
+      +   (tienePromo
+            ? '<span style="background:rgba(255,180,0,.9);color:#000;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px">$'+item.promo.toFixed(2)+'</span>'
+              +'<span style="background:rgba(100,100,100,.7);color:#ccc;font-family:Rajdhani,sans-serif;font-size:9px;font-weight:600;padding:1px 5px;border-radius:5px;text-decoration:line-through">$'+item.precio.toFixed(2)+'</span>'
+            : '<span style="background:rgba(0,212,255,.18);color:#00D4FF;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px">$'+item.precio.toFixed(2)+'</span>')
+      + '</div>'
+      // Cantidad badge top right
+      + '<div style="position:absolute;top:6px;right:6px;z-index:2">'
+      +   '<span style="background:rgba(232,25,44,.85);color:#fff;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px">x'+item.cant+'</span>'
+      + '</div>'
+      // Imagen
+      + '<div class="pcard-img-wrap" style="height:120px;display:flex;align-items:center;justify-content:center;background:#06060F">'
+      +   '<div class="pcard-circle"><img src="'+url+'" alt="'+item.codigo+'" loading="lazy" referrerpolicy="no-referrer" onerror="imgErr(this)"></div>'
+      + '</div>'
+      // Info
+      + '<div class="pcard-info" style="padding:8px 10px;flex:1">'
+      +   '<div class="pcard-code">'+item.codigo+'</div>'
+      +   '<div class="pcard-desc">'+esc(item.desc.substring(0,55))+'</div>'
+      +   metaHtml
+      // Subtotal
+      +   '<div style="margin-top:6px;padding-top:5px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:center">'
+      +     '<span style="font-size:9px;color:#8890B8;letter-spacing:.5px">SUBTOTAL</span>'
+      +     '<span style="font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;color:'+(tienePromo?'#FFB400':'#fff')+'">$'+subtotalPromo.toFixed(2)+'</span>'
+      +   '</div>'
+      + '</div>'
+      // Botón eliminar
+      + '<button onclick="cotEliminar('+i+')" style="position:absolute;bottom:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(232,25,44,.15);border:1px solid rgba(232,25,44,.3);color:#E8192C;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>'
+      + '</div>';
+  });
+
+  html += '</div>';
+  body.innerHTML = html;
+
+  var ahorro = totalLista - totalPromo;
+  document.getElementById('cot-total-lista').textContent = '$'+cotFmt(totalLista);
+  document.getElementById('cot-total-promo').textContent = '$'+cotFmt(totalPromo);
+  document.getElementById('cot-total-ahorro').textContent = ahorro > 0 ? '$'+cotFmt(ahorro) : '$0.00';
+}
+
+function cotEliminar(idx){
+  COT_ITEMS.splice(idx, 1);
+  cotRenderTabla();
+}
+
+function cotLimpiarTodo(){
+  COT_ITEMS = [];
+  cotRenderTabla();
+}
+
+function cotImprimir(){
+  if(!COT_ITEMS.length) return;
+  if(typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF){
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload=function(){ cotImprimir(); };
+    document.head.appendChild(s); return;
+  }
+  var doc=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+  var PW=215.9, PH=279.4, ML=10, MT=10;
+  var GAP=5;
+  var colW=(PW-ML*2-GAP)/2;
+  var CARD_H=28;
+
+  var RED=[232,25,44], DARK=[10,24,60], WHITE=[255,255,255];
+  var GRAY=[244,246,251], BORDER=[218,224,238], AMBER=[255,180,0];
+  var TEXT=[51,51,51], MUTED=[150,150,150], GREEN=[46,125,50];
+
+  var totalLista=0, totalPromo=0;
+
+  function fillPage(){
+    doc.setFillColor(255,255,255);
+    doc.rect(0,0,PW,PH,'F');
+  }
+
+  function drawPageHeader(y){
+    doc.setFontSize(15); doc.setFont('helvetica','bold');
+    doc.setTextColor(DARK[0],DARK[1],DARK[2]);
+    doc.text('APYMSA', ML, y+8);
+    doc.setFontSize(6); doc.setFont('helvetica','normal');
+    doc.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+    doc.text('COTIZACION / PROMOCIONES', ML, y+13);
+    var d=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
+    doc.text(d, PW-ML, y+8, {align:'right'});
+    doc.text(COT_ITEMS.length+' producto'+(COT_ITEMS.length>1?'s':''), PW-ML, y+13, {align:'right'});
+    doc.setDrawColor(RED[0],RED[1],RED[2]); doc.setLineWidth(0.4);
+    doc.line(ML, y+16, PW-ML, y+16);
+    return y+20;
+  }
+
+  function drawCard(item, imgData, cx, cy){
+    var subLista=item.cant*item.precio;
+    var subPromo=item.promo ? item.cant*item.promo : subLista;
+    var tienePromo=item.promo && item.promo < item.precio;
+    var pct=tienePromo ? Math.round((1-item.promo/item.precio)*100) : 0;
+
+    /* Card background */
+    doc.setFillColor(GRAY[0],GRAY[1],GRAY[2]);
+    doc.roundedRect(cx, cy, colW, CARD_H, 1.5, 1.5, 'F');
+    doc.setDrawColor(BORDER[0],BORDER[1],BORDER[2]); doc.setLineWidth(0.25);
+    doc.roundedRect(cx, cy, colW, CARD_H, 1.5, 1.5, 'S');
+
+    /* Image circle */
+    var imgCX = cx + 4 + 9;
+    var imgCY = cy + CARD_H/2;
+    doc.setFillColor(255,255,255);
+    doc.circle(imgCX, imgCY, 9, 'F');
+    doc.setDrawColor(BORDER[0],BORDER[1],BORDER[2]); doc.setLineWidth(0.2);
+    doc.circle(imgCX, imgCY, 9, 'S');
+    if(imgData){
+      try{ doc.addImage(imgData,'JPEG', imgCX-7, imgCY-7, 14, 14, '', 'FAST'); }catch(e){}
+    }
+
+    /* Qty badge */
+    doc.setFillColor(RED[0],RED[1],RED[2]);
+    doc.roundedRect(cx+1, cy+1, 8, 4, 0.7, 0.7, 'F');
+    doc.setFontSize(5); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+    doc.text('x'+item.cant, cx+5, cy+4, {align:'center'});
+
+    /* Promo sticker */
+    if(tienePromo){
+      var sc = imgCX+7, sy = imgCY+5;
+      doc.setFillColor(AMBER[0],AMBER[1],AMBER[2]);
+      doc.circle(sc, sy, 5, 'F');
+      doc.setDrawColor(255,255,255); doc.setLineWidth(0.4);
+      doc.circle(sc, sy, 5, 'S');
+      doc.setFontSize(3.8); doc.setFont('helvetica','bold'); doc.setTextColor(0,0,0);
+      doc.text('PROMO', sc, sy-1.5, {align:'center'});
+      doc.setFontSize(5);
+      doc.text('$'+cotFmt(item.promo), sc, sy+2.5, {align:'center'});
+    }
+
+    /* Text content */
+    var tx = cx + 4 + 18 + 3;
+    var tw = colW - (4+18+3) - 2;
+
+    /* Código */
+    doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+    doc.setTextColor(RED[0],RED[1],RED[2]);
+    doc.text(String(item.codigo), tx, cy+6.5);
+
+    /* Descripción */
+    doc.setFontSize(5.5); doc.setFont('helvetica','normal');
+    doc.setTextColor(TEXT[0],TEXT[1],TEXT[2]);
+    var dLines = doc.splitTextToSize(item.desc.substring(0,75), tw);
+    doc.text(dLines.slice(0,2), tx, cy+11);
+
+    /* Pills */
+    if(item.marca){
+      doc.setFillColor(DARK[0],DARK[1],DARK[2]);
+      var marcaStr = item.marca.substring(0,14);
+      var mw = doc.getStringUnitWidth(marcaStr)*5.5/doc.internal.scaleFactor + 4;
+      mw = Math.min(mw, 30);
+      doc.roundedRect(tx, cy+14.5, mw, 4, 0.6, 0.6, 'F');
+      doc.setFontSize(5); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+      doc.text(marcaStr, tx+2, cy+17.5);
+    }
+
+    /* Separator */
+    doc.setDrawColor(BORDER[0],BORDER[1],BORDER[2]); doc.setLineWidth(0.15);
+    doc.line(tx, cy+20, cx+colW-2, cy+20);
+
+    /* Prices row */
+    var py = cy+CARD_H-3;
+
+    if(tienePromo){
+      /* Tachado */
+      doc.setFontSize(5); doc.setFont('helvetica','normal');
+      doc.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+      var listaStr = '$'+item.precio.toFixed(2);
+      doc.text(listaStr, tx, py-3.5);
+      var sw = doc.getStringUnitWidth(listaStr)*5/doc.internal.scaleFactor;
+      doc.setDrawColor(MUTED[0],MUTED[1],MUTED[2]); doc.setLineWidth(0.15);
+      doc.line(tx, py-4.2, tx+sw, py-4.2);
+      /* Promo price */
+      doc.setFontSize(8); doc.setFont('helvetica','bold');
+      doc.setTextColor(AMBER[0],AMBER[1],AMBER[2]);
+      doc.text('$'+cotFmt(item.promo), tx, py);
+    } else {
+      doc.setFontSize(5); doc.setFont('helvetica','normal');
+      doc.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+      doc.text('Precio lista', tx, py-3.5);
+      doc.setFontSize(8); doc.setFont('helvetica','bold');
+      doc.setTextColor(DARK[0],DARK[1],DARK[2]);
+      doc.text('$'+cotFmt(item.precio), tx, py);
+    }
+
+    /* Subtotal */
+    doc.setFontSize(5); doc.setFont('helvetica','normal');
+    doc.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+    doc.text('Subtotal', cx+colW-2, py-3.5, {align:'right'});
+    doc.setFontSize(8); doc.setFont('helvetica','bold');
+    doc.setTextColor(DARK[0],DARK[1],DARK[2]);
+    doc.text('$'+cotFmt(subPromo), cx+colW-2, py, {align:'right'});
+
+    /* % badge */
+    if(tienePromo){
+      var bx = tx+32, by = py-6;
+      doc.setFillColor(232,245,233);
+      doc.roundedRect(bx, by, 11, 5, 0.7, 0.7, 'F');
+      doc.setFontSize(5); doc.setFont('helvetica','bold');
+      doc.setTextColor(GREEN[0],GREEN[1],GREEN[2]);
+      doc.text('-'+pct+'%', bx+5.5, by+3.5, {align:'center'});
+    }
+
+    totalLista += subLista;
+    totalPromo += subPromo;
+  }
+
+  fillPage();
+  var y = drawPageHeader(MT);
+  var col = 0;
+
+  function processNext(i){
+    if(i >= COT_ITEMS.length){
+      /* If odd number, advance y after last single card */
+      if(col === 1){ y += CARD_H + GAP; }
+
+      /* Totals */
+      var totH = 16;
+      if(y + totH > PH - 15){
+        doc.addPage(); fillPage(); y = MT;
+      }
+      y += 3;
+      doc.setFillColor(GRAY[0],GRAY[1],GRAY[2]);
+      doc.roundedRect(ML, y, PW-ML*2, totH, 1.5, 1.5, 'F');
+      doc.setDrawColor(BORDER[0],BORDER[1],BORDER[2]); doc.setLineWidth(0.25);
+      doc.roundedRect(ML, y, PW-ML*2, totH, 1.5, 1.5, 'S');
+
+      var th = y+6;
+      doc.setFontSize(6); doc.setFont('helvetica','normal');
+      doc.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+      doc.text('Subtotal lista', ML+6, th);
+      doc.setFontSize(9); doc.setFont('helvetica','bold');
+      doc.setTextColor(DARK[0],DARK[1],DARK[2]);
+      doc.text('$'+cotFmt(totalLista), ML+6, th+7);
+
+      doc.setFontSize(6); doc.setFont('helvetica','normal');
+      doc.setTextColor(AMBER[0],AMBER[1],AMBER[2]);
+      doc.text('Subtotal promo', ML+60, th);
+      doc.setFontSize(9); doc.setFont('helvetica','bold');
+      doc.setTextColor(AMBER[0],AMBER[1],AMBER[2]);
+      doc.text('$'+cotFmt(totalPromo), ML+60, th+7);
+
+      var ahorro = totalLista - totalPromo;
+      if(ahorro > 0){
+        doc.setFontSize(6); doc.setFont('helvetica','normal');
+        doc.setTextColor(GREEN[0],GREEN[1],GREEN[2]);
+        doc.text('Ahorro total', ML+120, th);
+        doc.setFontSize(11); doc.setFont('helvetica','bold');
+        doc.setTextColor(GREEN[0],GREEN[1],GREEN[2]);
+        doc.text('$'+cotFmt(ahorro), ML+120, th+8);
+      }
+      y += totH;
+
+      /* Footer */
+      var fY = PH - 7;
+      doc.setDrawColor(200,200,200); doc.setLineWidth(0.15);
+      doc.line(ML, fY-3, PW-ML, fY-3);
+      doc.setFontSize(5.5); doc.setFont('helvetica','normal');
+      doc.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
+      doc.text('ventas@apymsa.com.mx  ·  Tel: 33 3208 4440  ·  www.apymsa.com.mx', PW/2, fY, {align:'center'});
+
+      doc.save('Cotizacion_APYMSA_'+new Date().toISOString().slice(0,10)+'.pdf');
+      return;
+    }
+
+    var item = COT_ITEMS[i];
+    var cx = col === 0 ? ML : ML + colW + GAP;
+
+    /* Page break — only when starting a new row (col===0) */
+    if(col === 0 && y + CARD_H > PH - 20){
+      doc.addPage(); fillPage(); y = drawPageHeader(MT);
+    }
+
+    var img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = function(){
+      var c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      c.getContext('2d').drawImage(img,0,0);
+      var data; try{ data = c.toDataURL('image/jpeg',0.85); }catch(e){ data = null; }
+      drawCard(item, data, cx, y);
+      col++;
+      if(col >= 2){ col = 0; y += CARD_H + GAP; }
+      processNext(i+1);
+    };
+    img.onerror = function(){
+      drawCard(item, null, cx, y);
+      col++;
+      if(col >= 2){ col = 0; y += CARD_H + GAP; }
+      processNext(i+1);
+    };
+    img.src = 'https://resources.apymsa.com.mx/imagenes/FotosSpeed/'+item.codigo+'/'+item.codigo+'2a.jpg';
+  }
+
+  processNext(0);
+}
+
+
 </script>
+
+<!-- ══ PANTALLA: COTIZADOR ══ -->
+<div class="screen" id="sc-cotizador">
+<div class="home-wrap" style="min-height:100vh;padding-bottom:60px">
+  <button type="button" class="back-to-home-btn" onclick="showS('sc-home')" style="margin-bottom:20px">← Menú Principal</button>
+
+  <div style="text-align:center;padding:0 16px 16px">
+    <div style="font-size:10px;letter-spacing:4px;color:#FFB400;text-transform:uppercase;font-weight:700;margin-bottom:6px">Herramienta Interna</div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:clamp(26px,7vw,44px);font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;line-height:1;margin-bottom:6px">
+      COTIZADOR <span style="background:linear-gradient(90deg,#FFB400,#E8192C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">PROMOCIONES</span>
+    </div>
+    <div style="font-size:12px;color:#8890B8;letter-spacing:.5px">Captura manual o pega texto libre — formato: Cantidad · Código · Precio · Precio Promo</div>
+  </div>
+
+  <div style="max-width:680px;margin:0 auto;padding:0 16px">
+
+    <div style="background:#0e0e20;border:1.5px solid #1c1c38;border-radius:16px;padding:16px;margin-bottom:16px">
+      <div style="font-size:11px;color:#8890B8;margin-bottom:12px;line-height:1.5">
+        Escribe o <span style="color:#FFB400;font-weight:700">pega una columna</span> en cada campo — una línea por producto. El campo PROMO es opcional.
+      </div>
+      <div style="display:grid;grid-template-columns:80px 1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+        <div>
+          <div style="font-size:10px;color:#8890B8;letter-spacing:1px;margin-bottom:6px;font-weight:700">CANT.</div>
+          <textarea id="cot-col-cant" rows="8" placeholder="1&#10;2&#10;1&#10;3" style="width:100%;background:#080810;border:1.5px solid #1c1c38;border-radius:8px;color:#fff;font-family:monospace;font-size:13px;line-height:1.8;padding:8px;resize:none;outline:none;box-sizing:border-box"></textarea>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#8890B8;letter-spacing:1px;margin-bottom:6px;font-weight:700">CÓDIGO</div>
+          <textarea id="cot-col-codigo" rows="8" placeholder="0303105&#10;8332130&#10;0612236&#10;0107402" style="width:100%;background:#080810;border:1.5px solid #1c1c38;border-radius:8px;color:#fff;font-family:monospace;font-size:13px;line-height:1.8;padding:8px;resize:none;outline:none;box-sizing:border-box"></textarea>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#8890B8;letter-spacing:1px;margin-bottom:6px;font-weight:700">PRECIO</div>
+          <textarea id="cot-col-precio" rows="8" placeholder="509.50&#10;668.39&#10;234.00&#10;390.00" style="width:100%;background:#080810;border:1.5px solid #1c1c38;border-radius:8px;color:#fff;font-family:monospace;font-size:13px;line-height:1.8;padding:8px;resize:none;outline:none;box-sizing:border-box"></textarea>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#FFB400;letter-spacing:1px;margin-bottom:6px;font-weight:700">PRECIO PROMO <span style="opacity:.5;font-size:9px">(opcional)</span></div>
+          <textarea id="cot-col-promo" rows="8" placeholder="450.00&#10;&#10;199.00&#10;" style="width:100%;background:#080810;border:1.5px solid rgba(255,180,0,.2);border-radius:8px;color:#FFB400;font-family:monospace;font-size:13px;line-height:1.8;padding:8px;resize:none;outline:none;box-sizing:border-box"></textarea>
+        </div>
+      </div>
+      <button onclick="cotImportarColumnas()" style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#FFB400,#E8821A);border:none;color:#000;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;cursor:pointer">+ AGREGAR PRODUCTOS</button>
+      <div id="cot-col-error" style="display:none;margin-top:8px;font-size:11px;color:#E8192C;padding:6px 10px;background:rgba(232,25,44,.08);border-radius:6px"></div>
+    </div>
+
+    <div id="cot-tabla-wrap" style="display:none;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;color:#fff">
+          📋 Items capturados: <span id="cot-items-count" style="color:#FFB400">0</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="cotLimpiarTodo()" style="padding:7px 14px;border-radius:8px;border:1.5px solid rgba(232,25,44,.3);background:transparent;color:#E8192C;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;cursor:pointer">✕ Limpiar</button>
+          <button onclick="cotImprimir()" style="padding:7px 14px;border-radius:8px;background:linear-gradient(135deg,#E8192C,#B8101F);border:none;color:#fff;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">🖨️ Imprimir</button>
+        </div>
+      </div>
+      <div id="cot-tabla-body"></div>
+      <div id="cot-totales" style="margin-top:12px;padding:12px 14px;background:#0e0e20;border:1.5px solid #1c1c38;border-radius:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:12px;color:#8890B8">Subtotal lista:</span>
+          <span id="cot-total-lista" style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#fff">$0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:12px;color:#FFB400">Subtotal promo:</span>
+          <span id="cot-total-promo" style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#FFB400">$0.00</span>
+        </div>
+        <div style="border-top:1px solid #1c1c38;padding-top:8px;display:flex;justify-content:space-between">
+          <span style="font-size:13px;color:#fff;font-weight:700">Ahorro:</span>
+          <span id="cot-total-ahorro" style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#22c55e">$0.00</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
 </body></html>
