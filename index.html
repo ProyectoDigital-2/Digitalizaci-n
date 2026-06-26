@@ -25730,6 +25730,7 @@ var P=[
 
 
 
+
 <script>
 
 /* ══ CLASIFICACIÓN POR TIPO ══ */
@@ -28301,12 +28302,32 @@ function cotGenerarFlyer(){
       + (item.marca?'<span style="background:#0a183c;color:#fff;font-size:7px;padding:2px 5px;border-radius:3px">'+item.marca+'</span>':'')
       + (item.familia?'<span style="background:#e8192c;color:#fff;font-size:7px;padding:2px 5px;border-radius:3px">'+item.familia.substring(0,14)+'</span>':'')
       + '</div>'
-      + '<div style="border-top:1px solid #eee;padding-top:4px;text-align:center">'
-      + (tienePromo?'<div style="font-size:8px;color:#999;text-decoration:line-through">$'+cotFmt(item.precio)+'</div>':'')
-      + '<div style="font-size:13px;color:'+(tienePromo?'#FFB400':'#0a183c')+';font-weight:900;line-height:1">$'+cotFmt(tienePromo?item.promo:item.precio)+'</div>'
-      + (tienePromo?'<div style="background:#e8f5e9;border-radius:3px;padding:1px 0;margin-top:2px"><span style="font-size:9px;color:#22c55e;font-weight:700">-'+pct+'%</span></div>':'')
+      + '<div style="border-top:1px solid #eee;padding-top:4px">'
+      + (tienePromo
+        ? '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px"><span style="font-size:9px;color:#999;font-weight:700">P. Regular</span><span style="font-size:10px;color:#999;font-weight:700;text-decoration:line-through">$'+cotFmt(item.precio)+'</span></div>'
+        + '<div style="background:#e8192c;border-radius:5px;padding:4px 6px;margin:2px 0;display:flex;justify-content:space-between;align-items:center"><span style="background:#FFB400;color:#7a2000;font-size:8px;font-weight:900;padding:1px 5px;border-radius:8px">🏷 PROMO</span><span style="font-size:15px;color:#fff;font-weight:900;line-height:1">$'+cotFmt(item.promo)+'</span></div>'
+        + '<div style="background:#e8f5e9;border-radius:3px;padding:2px 6px;display:flex;justify-content:space-between;align-items:center"><span style="background:#22c55e;color:#fff;font-size:8px;font-weight:900;padding:1px 5px;border-radius:8px">% DSCTO</span><span style="font-size:11px;color:#22c55e;font-weight:900">-'+pct+'%</span></div>'
+        : '<div style="text-align:center;padding:3px 0"><span style="font-size:14px;color:#0a183c;font-weight:900">$'+cotFmt(item.precio)+'</span></div>'
+      )
       + '</div>'
       + '</div>';
+  }).join('');
+
+  var totalPiezas = COT_ITEMS.reduce(function(s,i){return s+(i.cant||1);},0);
+
+  /* Pre-generar tabla */
+  var tablaHtml = COT_ITEMS.map(function(item,ri){
+    var rowBg = ri%2===0?'#f9fafb':'#fff';
+    var tp2 = item.promo && item.promo < item.precio;
+    var pu = tp2 ? item.promo : item.precio;
+    var tr2 = item.cant * pu;
+    return '<tr style="background:'+rowBg+';border-bottom:0.5px solid #eee">'
+      + '<td style="padding:4px 7px;text-align:center;font-weight:900;color:#0a183c;font-size:11px">'+item.cant+'</td>'
+      + '<td style="padding:4px 7px;color:#e8192c;font-weight:700">'+item.codigo+'</td>'
+      + '<td style="padding:4px 7px;color:#333">'+item.desc.substring(0,50)+'</td>'
+      + '<td style="padding:4px 7px;text-align:right;font-weight:700;color:'+(tp2?'#e8192c':'#0a183c')+'">$'+cotFmt(pu)+'</td>'
+      + '<td style="padding:4px 7px;text-align:right;font-weight:900;color:#0a183c">$'+cotFmt(tr2)+'</td>'
+      + '</tr>';
   }).join('');
 
   var html = '<div style="font-family:Arial,sans-serif;background:#fff;border-radius:10px;overflow:hidden">'
@@ -28318,7 +28339,7 @@ function cotGenerarFlyer(){
   +       '<img src="https://www.apymsa.com.mx/Content/Images/Logo-Apymsa-2024.png" crossorigin="anonymous" style="height:28px;object-fit:contain;display:block" onerror="this.style.display=\'none\'">'
   +     '</div>'
   +     '<div style="color:#FFB400;font-size:22px;font-weight:900;line-height:1">'+titulo+'</div>'
-  +     '<div style="color:#aaa;font-size:10px;letter-spacing:2px;margin-top:3px">PAQUETE PROMOCIONAL · '+COT_ITEMS.length+' PIEZAS</div>'
+  +     '<div style="color:#aaa;font-size:10px;letter-spacing:2px;margin-top:3px">PAQUETE PROMOCIONAL · '+COT_ITEMS.length+' PRODUCTOS | '+totalPiezas+' PIEZAS</div>'
   +   '</div>'
   +   '<div style="display:flex;gap:6px;align-items:stretch">'
   +     '<div style="background:#e8192c;border-radius:6px;padding:8px 10px;text-align:center;min-width:100px">'
@@ -28341,6 +28362,26 @@ function cotGenerarFlyer(){
   /* GRID PRODUCTOS */
   + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:6px;background:#f4f6fb">'
   + cardsHtml
+  + '</div>'
+
+  /* TABLA DETALLE */
+  + '<div style="background:#fff;padding:10px 14px">'
+  +   '<div style="color:#0a183c;font-size:11px;font-weight:900;letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #0a183c">📋 DETALLE DE PRODUCTOS</div>'
+  +   '<table style="width:100%;border-collapse:collapse;font-size:9px">'
+  +     '<thead><tr style="background:#0a183c;color:#fff">'
+  +       '<th style="padding:5px 7px;text-align:center;width:7%">CANT</th>'
+  +       '<th style="padding:5px 7px;text-align:left;width:12%">SKU</th>'
+  +       '<th style="padding:5px 7px;text-align:left">DESCRIPCIÓN</th>'
+  +       '<th style="padding:5px 7px;text-align:right;width:13%">P. PROMO</th>'
+  +       '<th style="padding:5px 7px;text-align:right;width:13%">TOTAL</th>'
+  +     '</tr></thead>'
+  +     '<tbody>'+tablaHtml+'</tbody>'
+  +     '<tfoot><tr style="background:#0a183c">'
+  +       '<td colspan="3" style="padding:5px 7px;color:#aabbdd;font-size:9px;font-weight:700">'+totalPiezas+' PIEZAS · '+COT_ITEMS.length+' PRODUCTOS</td>'
+  +       '<td style="padding:5px 7px;text-align:right;color:#ffcccc;font-size:9px;font-weight:700">TOTAL PROMO</td>'
+  +       '<td style="padding:5px 7px;text-align:right;color:#fff;font-size:11px;font-weight:900">$'+cotFmt(totalPromo)+'</td>'
+  +     '</tr></tfoot>'
+  +   '</table>'
   + '</div>'
 
   /* INFO: POR QUÉ + RECOMENDADO */
@@ -28369,19 +28410,23 @@ function cotGenerarFlyer(){
   + '</div>'
 
   /* BADGES */
-  + '<div style="background:#1a2a4a;padding:6px 12px;display:flex;justify-content:space-between;align-items:center">'
-  +   '<div style="display:flex;gap:14px">'
-  +     '<div style="text-align:center"><div style="color:#FFB400;font-size:12px">↻</div><div style="color:#aaa;font-size:8px;font-weight:700">ALTA ROTACIÓN</div></div>'
-  +     '<div style="text-align:center"><div style="color:#FFB400;font-size:12px">📈</div><div style="color:#aaa;font-size:8px;font-weight:700">MAYOR RENTABILIDAD</div></div>'
-  +     '<div style="text-align:center"><div style="color:#FFB400;font-size:12px">👥</div><div style="color:#aaa;font-size:8px;font-weight:700">CLIENTES SATISFECHOS</div></div>'
-  +     '<div style="text-align:center"><div style="color:#FFB400;font-size:12px">🛡</div><div style="color:#aaa;font-size:8px;font-weight:700">RESPALDO Y CALIDAD</div></div>'
+  + '<div style="background:#0a183c;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-top:2px solid #FFB400">'
+  +   '<div style="display:flex;gap:10px;flex-wrap:wrap">'
+  +     '<div style="text-align:center;min-width:52px"><div style="font-size:20px">🔄</div><div style="color:#fff;font-size:8.5px;font-weight:700;margin-top:2px">ALTA<br>ROTACIÓN</div></div>'
+  +     '<div style="text-align:center;min-width:52px"><div style="font-size:20px">📈</div><div style="color:#fff;font-size:8.5px;font-weight:700;margin-top:2px">MAYOR<br>RENTABILIDAD</div></div>'
+  +     '<div style="text-align:center;min-width:52px"><div style="font-size:20px">😊</div><div style="color:#fff;font-size:8.5px;font-weight:700;margin-top:2px">CLIENTES<br>SATISFECHOS</div></div>'
+  +     '<div style="text-align:center;min-width:52px"><div style="font-size:20px">🛡️</div><div style="color:#fff;font-size:8.5px;font-weight:700;margin-top:2px">CALIDAD<br>GARANTIZADA</div></div>'
+  +     '<div style="text-align:center;min-width:52px"><div style="font-size:20px">✅</div><div style="color:#fff;font-size:8.5px;font-weight:700;margin-top:2px">GARANTÍA<br>RESPALDADA</div></div>'
+  +     '<div style="text-align:center;min-width:52px"><div style="font-size:20px">💰</div><div style="color:#fff;font-size:8.5px;font-weight:700;margin-top:2px">PRECIOS<br>COMPETITIVOS</div></div>'
+  +     '<div style="text-align:center;min-width:52px"><div style="font-size:20px">💹</div><div style="color:#fff;font-size:8.5px;font-weight:700;margin-top:2px">MÁRGENES<br>ATRACTIVOS</div></div>'
   +   '</div>'
-  +   '<div style="background:#e8192c;border-radius:5px;padding:5px 10px;text-align:center">'
-  +     '<div style="color:#fff;font-size:10px;font-weight:900">COMPRA HOY,</div>'
-  +     '<div style="color:#FFB400;font-size:10px;font-weight:900">VENDE MÁS,</div>'
-  +     '<div style="color:#fff;font-size:10px;font-weight:900">¡GANA MÁS!</div>'
+  +   '<div style="background:#e8192c;border-radius:6px;padding:7px 12px;text-align:center;flex-shrink:0">'
+  +     '<div style="color:#fff;font-size:11px;font-weight:900">COMPRA HOY,</div>'
+  +     '<div style="color:#FFB400;font-size:12px;font-weight:900">VENDE MÁS,</div>'
+  +     '<div style="color:#fff;font-size:11px;font-weight:900">¡GANA MÁS!</div>'
   +   '</div>'
   + '</div>'
+
 
   /* TOTALES 3 BLOQUES */
   + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">'
@@ -28423,21 +28468,48 @@ function cotGenerarFlyer(){
 function cotDescargarFlyer(){
   var el = document.getElementById('cot-flyer-content');
   if(!el) return;
+
+  /* Cargar dependencias si faltan */
+  function _doFlyer(){
+    var btn = document.querySelector('[onclick="cotDescargarFlyer()"]');
+    if(btn){ btn.innerHTML = '⏳ Generando...'; btn.disabled = true; }
+
+    html2canvas(el, { scale:1.6, useCORS:true, backgroundColor:'#ffffff', logging:false }).then(function(canvas){
+      /* Comprimir como JPEG calidad 0.88 — buen balance nitidez/peso */
+      var imgData = canvas.toDataURL('image/jpeg', 1);
+      var imgW = canvas.width;
+      var imgH = canvas.height;
+
+      /* Calcular tamaño de página en mm */
+      var pdfW = imgW / (1.6 * 3.7795);
+      var pdfH = imgH / (1.6 * 3.7795);
+
+      var doc = new window.jspdf.jsPDF({
+        orientation: pdfW > pdfH ? 'landscape' : 'portrait',
+        unit: 'mm',
+        format: [pdfW, pdfH],
+        compress: true
+      });
+
+      doc.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH, '', 'FAST');
+      doc.save('Flyer_APYMSA_' + new Date().toISOString().slice(0,10) + '.pdf');
+
+      if(btn){ btn.innerHTML = '⬇ Descargar PDF'; btn.disabled = false; }
+    }).catch(function(e){
+      if(btn){ btn.innerHTML = '⬇ Descargar PDF'; btn.disabled = false; }
+      console.error('Flyer error:', e);
+    });
+  }
+
+  /* Cargar html2canvas si no está */
   if(typeof html2canvas === 'undefined'){
     var s = document.createElement('script');
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    s.onload = function(){ cotDescargarFlyer(); };
-    document.head.appendChild(s); return;
+    s.onload = _doFlyer;
+    document.head.appendChild(s);
+  } else {
+    _doFlyer();
   }
-  var btn = event.target;
-  btn.innerHTML = '⏳ Generando...'; btn.disabled = true;
-  html2canvas(el, { scale:2, useCORS:true, backgroundColor:'#ffffff', logging:false }).then(function(canvas){
-    var link = document.createElement('a');
-    link.download = 'Flyer_APYMSA_'+new Date().toISOString().slice(0,10)+'.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    btn.innerHTML = '⬇ Descargar PDF'; btn.disabled = false;
-  }).catch(function(){ btn.innerHTML = '⬇ Descargar PDF'; btn.disabled = false; });
 }
 
 
@@ -28681,8 +28753,8 @@ function pdfAddLogo(doc, x, y, h, cb){
 
 
 <!-- ══ MODAL FLYER ══ -->
-<div id="cot-flyer-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:9999;overflow-y:auto;padding:20px;box-sizing:border-box">
-  <div style="max-width:720px;margin:0 auto">
+<div id="cot-flyer-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:9999;overflow-y:auto;overflow-x:hidden;padding:20px;box-sizing:border-box;-webkit-overflow-scrolling:touch">
+  <div style="max-width:960px;margin:0 auto;min-width:320px;overflow-x:auto">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:1px">🎨 Vista Previa del Flyer</div>
       <div style="display:flex;gap:8px">
@@ -28690,8 +28762,9 @@ function pdfAddLogo(doc, x, y, h, cb){
         <button onclick="document.getElementById('cot-flyer-modal').style.display='none'" style="padding:8px 16px;border-radius:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer">✕ Cerrar</button>
       </div>
     </div>
-    <div id="cot-flyer-content" style="border-radius:10px;overflow:hidden"></div>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%"><div id="cot-flyer-content" style="border-radius:10px;overflow:hidden;min-width:680px"></div>
   </div>
+</div>
 </div>
 
 </body></html>
